@@ -8,7 +8,7 @@ class SheetManager {
 
     constructor(spreadsheetId: string, privateKey: string, clientEmail: string) {   
         const auth = new google.auth.GoogleAuth({
-            credential:{
+            credentials:{
                 private_key: privateKey,
                 client_email: clientEmail,
             },
