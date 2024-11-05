@@ -131,6 +131,7 @@ class SheetManager {
                     values: rows
                 }
             });
+            
         } catch (error) {
             console.error('Error al agregar una conversación:', error);
         }
