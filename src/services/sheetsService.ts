@@ -99,6 +99,7 @@ class SheetManager {
             console.error('Error al obtener la conversación del usuario:', error);
             return [];
         }
+        return [];
     }
     //Funcion para agregar una conversacion al inicio de la pestaña del usuaio
     async addConvertoUser(number: string, conversation: { role: string, content: string}[]): Promise<void> {
