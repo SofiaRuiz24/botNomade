@@ -94,8 +94,9 @@ class SheetManager {
                     answer: conversacion[1]
                 });
             }
+            return formatedConversaciones;
         } catch (error) {
-            
+            console.error('Error al obtener la conversación del usuario:', error);
         }
     }
     //Funcion para agregar una conversacion al inicio de la pestaña del usuaio
