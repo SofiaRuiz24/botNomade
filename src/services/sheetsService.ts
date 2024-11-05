@@ -89,14 +89,15 @@ class SheetManager {
             const formatedConversaciones = [];
             for(let i = 0; i < lastConversaciones.length; i++){
                 const conversacion = lastConversaciones[i];
-                formatedConversaciones.push({
-                    question: conversacion[0],
-                    answer: conversacion[1]
-                });
+                formatedConversaciones.push(
+                    {role: 'user', content: conversacion[0]},
+                    {role: 'assistant', content: conversacion[1]}
+                );
             }
             return formatedConversaciones;
         } catch (error) {
             console.error('Error al obtener la conversación del usuario:', error);
+            return [];
         }
         return [];
     }
