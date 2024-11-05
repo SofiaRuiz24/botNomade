@@ -10,4 +10,8 @@ export const config = {
     //OpenAI
     model: process.env.OPENAI_MODEL,
     apiKey: process.env.OPENAI_API_KEY,
+    //Google Sheets
+    spreadsheetId: process.env.SPREADSHEET_ID,
+    privateKey: process.env.PRIVATE_KEY ,
+    clientEmail: process.env.CLIENT_EMAIL,
 };
