@@ -12,6 +12,6 @@ export const config = {
     apiKey: process.env.OPENAI_API_KEY,
     //Google Sheets
     spreadsheetId: process.env.SPREADSHEET_ID,
-    privateKey: process.env.PRIVATE_KEY,
+    privateKey: process.env.PRIVATE_KEY ,
     clientEmail: process.env.CLIENT_EMAIL,
 };
