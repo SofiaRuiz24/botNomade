@@ -23,7 +23,7 @@ class aiServices {
                 ]
             });
 
-            const answer = completion.choices[0].message.content || 'No response';
+            const answer = completion.choices[0].message?.content || 'No response';
             return answer;
         }catch(err){
             console.error('Error al conectar OpenAI', err);
