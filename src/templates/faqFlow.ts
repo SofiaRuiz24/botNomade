@@ -18,6 +18,7 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
         async(ctx, {state, endFlow, gotoFlow}) => {
             const history = await sheetsService.getUserConv(ctx.from);
             history.push({role: 'user', content: ctx.body});
+            console.log('Historial:', history);
             try {
                 const AI = new iaService(config.apiKey);
                 const response = await AI.chat(prompt, history);
