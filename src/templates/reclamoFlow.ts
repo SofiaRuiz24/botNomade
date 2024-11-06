@@ -56,7 +56,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ dateRec: ctx.body })
 
             const reclamoData: Reclamo = {
-                id: ctxFn.state.get("id"), // Puedes asignar un ID generado o único aquí
+                id: "estoesunid", // Puedes asignar un ID generado o único aquí
                 name: ctxFn.state.get("name"),
                 docType: ctxFn.state.get("docType"),
                 docNumber: ctxFn.state.get("docNumber"),
