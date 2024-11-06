@@ -27,7 +27,7 @@ const registerFlow = addKeyword(EVENTS.ACTION)
             }
             const state = ctxFn.state.getMyState()
             await sheetsService.createUser(ctx.from, state.name, ctx.body)
-            await ctxFn.flowDynamic('¡Gracias por registrarte! Tus datos han sido guardados con éxito.')
+            await ctxFn.flowDynamic('¡Gracias por registrarte! Tus datos han sido guardados con éxito. ¿Ahora sí, en qué puedo ayudarte?')
     })
 
     export { registerFlow };
