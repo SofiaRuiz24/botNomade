@@ -1,6 +1,7 @@
 import { addKeyword, EVENTS } from "@builderbot/bot";
 import { crearReclamo } from "~/controller/reclamoController";
 import { Reclamo } from "~/model/Reclamo";
+import { completarFormularioOnline } from "~/services/recArboles";
 
 const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('¿Desea iniciar una solicitud para su reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
@@ -74,6 +75,12 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito. Si necesita puede agregar una imagen o archivo relacionado con el reclamo.');
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
+            }
+            try {
+                completarFormularioOnline(reclamoData);
+            } catch (error) {
+                console.error("Error al completar el formulario:", error);
+                console.log(reclamoData);
             }
         }
     )
