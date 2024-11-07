@@ -3,9 +3,9 @@ import { crearReclamo } from "~/controller/reclamoController";
 import { Reclamo } from "~/model/Reclamo";
 
 const reclamoFlow = addKeyword(EVENTS.ACTION)
-    .addAnswer('¿Desea iniciar una solicitud para su reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por el momento.' }] },
+    .addAnswer('¿Desea iniciar una solicitud para su reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
         async (ctx, ctxFn) => {
-            if (ctx.body === 'No, por el momento.') {
+            if (ctx.body === 'No, por ahora.') {
                 return ctxFn.endFlow('La solicitud ha sido cancelado. Puede realizar un reclamo en cualquier momento.')
             } else if (ctx.body === 'Sí, quiero.') {
                 return ctxFn.flowDynamic('Perfecto, voy a proceder a hacerte algunas preguntas.')
@@ -47,14 +47,14 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ address: ctx.body })
         }
     )
-    .addAnswer('Los datos del solicitante han sido cargados exitosamente. Ahora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
+    .addAnswer('Los datos del solicitante han sido cargados exitosamente 👏.\n Ahora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ descriptionRec: ctx.body })
         })
-    .addAnswer('Ingrese la fecha en la que ocurrió el reclamo:', { capture: true },
+    .addAnswer('Ingrese la fecha en la que ocurrió el hecho:', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ dateRec: ctx.body })
-            console.log(ctxFn.state.getMyState())
+            //console.log(ctxFn.state.getMyState())
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí
                 name: ctxFn.state.get("name"),
