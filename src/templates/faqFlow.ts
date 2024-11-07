@@ -29,7 +29,6 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                }else{
                     return endFlow(response);
                }
-                               
             } catch (error) {
                 console.log('Error en llamada a OpenAI', error);
                 return endFlow('Error, Por favor intenta de nuevo');
