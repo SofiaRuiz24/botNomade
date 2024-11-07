@@ -47,7 +47,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ address: ctx.body })
         }
     )
-    .addAnswer('Los datos del solicitante han sido cargados exitosamente. Ahora continuaremos con el reclamo, proporciona una descripción del mismo:, ', { capture: true },
+    .addAnswer('Los datos del solicitante han sido cargados exitosamente. Ahora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ descriptionRec: ctx.body })
         })
