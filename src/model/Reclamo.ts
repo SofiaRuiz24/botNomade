@@ -22,7 +22,7 @@ const reclamoSchema = new mongoose.Schema({
     docNumber: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     email: { type: String, required: true },
-    adress: { type: String, required: true },
+    address: { type: String, required: true },
     descriptionRec: { type: String, required: true },
     dateRec: { type: String, required: false },
     estado: { type: String, required: false },
