@@ -1,6 +1,9 @@
 dist/*
 node_modules
+<<<<<<< HEAD
+=======
 
+>>>>>>> devSofia
 
 *_sessions
 *tokens

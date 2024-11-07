@@ -6,7 +6,6 @@ const registerFlow = addKeyword(EVENTS.ACTION)
         async (ctx, ctxFn) => {
             if(ctx.body === 'No, gracias!'){
                 return ctxFn.endFlow('El registro ha sido cancelado. Puede retomar la conversación en cualquier momento para registrarte.')
-
             } else if(ctx.body === 'Si,quiero!'){
                 return ctxFn.flowDynamic('Perfecto, voy a proceder a hacerte algunas preguntas.')
             } else {

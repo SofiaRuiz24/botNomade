@@ -4,6 +4,7 @@ import sheetsService from '~/services/sheetsService';
 import { config } from '../config';
 import path from 'path';
 import fs, { stat } from 'fs';
+import { reclamoFlow } from './reclamoFlow';
 
 const pathPrompts = path.join(
     process.cwd(),
@@ -23,7 +24,11 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                 const AI = new iaService(config.apiKey);
                 const response = await AI.chat(prompt, history);
                 await sheetsService.addConvertoUser(ctx.from, [{role: 'user', content: ctx.body}, {role: 'assistant', content: response}]);
-                return endFlow(response);
+               if(response.includes('RECLAMO IDENTIFICADO')){
+                    return gotoFlow(reclamoFlow);
+               }else{
+                    return endFlow(response);
+               }
             } catch (error) {
                 console.log('Error en llamada a OpenAI', error);
                 return endFlow('Error, Por favor intenta de nuevo');
