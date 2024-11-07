@@ -27,11 +27,19 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     )
     .addAnswer('Número de Documento:', { capture: true },
         async (ctx, ctxFn) => {
+            const docNumberRegex = /"^[A-Z0-9]{6,10}$"/;   
+            if (!docNumberRegex.test(ctx.body)) {
+                return ctxFn.fallBack('El número de documento ingresado no es válido. Por favor, ingresalo nuevamente.')
+            }
             await ctxFn.state.update({ docNumber: ctx.body })
         }
     )
     .addAnswer('Número de teléfono de contacto:', { capture: true },
         async (ctx, ctxFn) => {
+            const numberRegex = /^[0-9]{9,14}$/;
+            if (!numberRegex.test(ctx.body)) {
+                return ctxFn.fallBack('El número de teléfono ingresado no es válido}')
+            }
             await ctxFn.state.update({ phone: ctx.body })
         }
     )
@@ -46,16 +54,25 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     )
     .addAnswer('Dirección del solicitante:', { capture: true },
         async (ctx, ctxFn) => {
+            const direccionRegex = /^[a-zA-Z0-9\s]{5,}$/;
+            if (!direccionRegex.test(ctx.body)) {
+                return ctxFn.fallBack('La dirección ingresada no es válida. Por favor, ingresala nuevamente.')
+            }
             await ctxFn.state.update({ address: ctx.body })
         }
     )
-    .addAnswer('Los datos del solicitante han sido cargados exitosamente 👏.\n Ahora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
+    .addAnswer('Los datos del solicitante han sido cargados exitosamente 👏.\nAhora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ descriptionRec: ctx.body })
         })
-    .addAnswer('Ingrese la fecha en la que ocurrió el hecho:', { capture: true },
+    .addAnswer('Ingrese la fecha (unicamente con numeros) en la que ocurrió el hecho:', { capture: true },
         async (ctx, ctxFn) => {
-            await ctxFn.state.update({ dateRec: ctx.body })
+            const dateRegex = /^[\d\-\/\.]{1,8}$/; 
+            if (!dateRegex.test(ctx.body)) {
+                return ctxFn.fallBack('La fecha ingresada no es válida, recuerde que solo se aceptan números. Por favor, ingresala nuevamente.')
+            }
+            const fecha = ctx.body.replace(/[^0-9]/g, '');
+            await ctxFn.state.update({ dateRec: fecha })
             //console.log(ctxFn.state.getMyState())
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí

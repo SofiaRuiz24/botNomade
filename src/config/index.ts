@@ -25,5 +25,7 @@ export const config = {
     URL_RECOLECCION : process.env.recoleccionDeResiduos,
     URL_AGUA : process.env.fugaDeAgua,
     URL_GAS : process.env.problemasGas,
-
+  //Gemini
+  GEMINI_APIKEY: process.env.GEMINI_APIKEY,
+  
 };
