@@ -8,7 +8,7 @@ export interface Reclamo {
     docNumber: string;
     phone: string;
     email: string;
-    adress: string;
+    address: string;
     descriptionRec: string;
     dateRec: string;
     estado: string;

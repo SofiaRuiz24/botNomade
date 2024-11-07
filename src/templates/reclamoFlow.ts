@@ -54,7 +54,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('Ingrese la fecha en la que ocurrió el reclamo:', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ dateRec: ctx.body })
-
+            console.log(ctxFn.state.getMyState())
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí
                 name: ctxFn.state.get("name"),
@@ -62,7 +62,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 docNumber: ctxFn.state.get("docNumber"),
                 phone: ctxFn.state.get("phone"),
                 email: ctxFn.state.get("email"),
-                adress: ctxFn.state.get("adress"),
+                address: ctxFn.state.get("address"),
                 descriptionRec: ctxFn.state.get("descriptionRec"),
                 dateRec: ctxFn.state.get("dateRec"),
                 estado: 'Pendiente',
