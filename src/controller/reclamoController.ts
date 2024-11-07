@@ -4,7 +4,7 @@ export const crearReclamo = async (data: Reclamo): Promise<Reclamo | null> => {
     try {
         const nuevoReclamo = new ReclamoModel({
             ...data,
-            dateRec: data.dateRec || new Date(), // Asigna la fecha actual si no se proporciona
+            //dateRec: data.dateRec || new Date(), // Asigna la fecha actual si no se proporciona
             estado: data.estado || 'Pendiente'   // Estado predeterminado
         });
 

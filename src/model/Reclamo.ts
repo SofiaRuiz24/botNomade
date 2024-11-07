@@ -10,7 +10,7 @@ export interface Reclamo {
     email: string;
     adress: string;
     descriptionRec: string;
-    dateRec: Date;
+    dateRec: string;
     estado: string;
     usuario: string;
 }
@@ -24,7 +24,7 @@ const reclamoSchema = new mongoose.Schema({
     email: { type: String, required: true },
     adress: { type: String, required: true },
     descriptionRec: { type: String, required: true },
-    dateRec: { type: Date, required: false },
+    dateRec: { type: String, required: false },
     estado: { type: String, required: false },
     usuario: { type: String, required: true },
 });
