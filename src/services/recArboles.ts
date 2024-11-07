@@ -3,7 +3,7 @@ import { Reclamo } from '~/model/Reclamo';
 
 export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void> => {
     const url = 'https://reclamos.reclamos311.com.ar/incidents/10-poda-de-arboles/claims/new';
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
     try {
@@ -25,13 +25,14 @@ export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void>
         await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
 
         // Hacer clic en el botón "Siguiente"
-        await page.click('button[type="submit"]'); // Ajusta el selector si es necesario
+        await page.click('input[value="Siguiente"]'); // Ajusta el selector si es necesario
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
         // Completar la segunda sección
         await page.type('#claim_answers_attributes_0_input_text', reclamo.descriptionRec); // Descripción del reclamo
         //await page.type('#claim_answers_attributes_11_input_string', reclamo.dateRec.toISOString().split('T')[0]); // Fecha del reclamo en formato YYYY-MM-DD
-        await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec); 
+        await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec);
+        await page.keyboard.press('Enter'); 
         
         /* Adjuntar un archivo si es necesario
         const filePath = '/path/to/file.jpg'; // Reemplaza con la ruta real del archivo si tienes uno
@@ -41,7 +42,7 @@ export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void>
         }*/
 
         // Enviar el formulario
-        await page.click('button[type="submit"]');
+        /*await page.click('input[value="Enviar"]');*/
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
         // Esperar a que el formulario se envíe

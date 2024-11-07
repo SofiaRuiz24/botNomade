@@ -18,7 +18,7 @@
     "googleapis": "^144.0.0",
     "mongoose": "^8.8.0",
     "openai": "^4.69.0",
-    "puppeteer": "^23.7.0"
+    "puppeteer": "^23.7.1"
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.96",

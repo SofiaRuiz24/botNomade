@@ -71,17 +71,19 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             };
 
             const resultado = await crearReclamo(reclamoData);
+            try {
+                await completarFormularioOnline(reclamoData);
+            } catch (error) {
+                console.error("Error al completar el formulario:", error);
+                console.log(reclamoData);
+            }
+
             if (resultado) {
                 return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito. Si necesita puede agregar una imagen o archivo relacionado con el reclamo.');
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
             }
-            try {
-                completarFormularioOnline(reclamoData);
-            } catch (error) {
-                console.error("Error al completar el formulario:", error);
-                console.log(reclamoData);
-            }
+            
         }
     )
 export { reclamoFlow };
