@@ -9,7 +9,8 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             if (ctx.body === 'No, por ahora.') {
                 return ctxFn.endFlow('La solicitud ha sido cancelado. Puede realizar un reclamo en cualquier momento.')
             } else if (ctx.body === 'Sí, quiero.') {
-                return ctxFn.flowDynamic('Perfecto, voy a proceder a hacerte algunas preguntas.')
+                const tipoReclamo = ctx.options;
+                return ctxFn.flowDynamic(`Perfecto, voy a proceder a hacerte algunas preguntas sobre el reclamo: ${tipoReclamo}.`)
             } else {
                 return ctxFn.fallBack('No entiendo tu respuesta.')
             }
@@ -58,6 +59,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             //console.log(ctxFn.state.getMyState())
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí
+                type: ctx.options,
                 name: ctxFn.state.get("name"),
                 docType: ctxFn.state.get("docType"),
                 docNumber: ctxFn.state.get("docNumber"),

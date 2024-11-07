@@ -1,8 +1,43 @@
 import puppeteer from 'puppeteer';
 import { Reclamo } from '~/model/Reclamo';
+import { config } from '~/config';
 
 export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void> => {
-    const url = 'https://reclamos.reclamos311.com.ar/incidents/10-poda-de-arboles/claims/new';
+    let url = '';
+    console.log(reclamo.type);
+    switch (reclamo.type) {
+        case 'RECLAMO IDENTIFICADO: Poda de Árboles':
+            url = config.URL_PODA;
+            break;
+        case 'RECLAMO IDENTIFICADO: Alumbrado Público':
+            url = config.URL_ALUMBRADO
+            break;
+        case 'RECLAMO IDENTIFICADO: Animales Sueltos':
+            url = config.URL_ANIMALES
+            break;
+        case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas':
+            url = config.URL_OBRAS
+            break;
+        case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado':
+            url = config.URL_VEREDAS
+            break;
+        case 'RECLAMO IDENTIFICADO: Ruidos Molestos':
+            url = config.URL_RUIDOS
+            break;
+        case 'RECLAMO IDENTIFICADO: Transporte Público':
+            url = config.URL_TRANSPORTE
+            break;
+        case 'RECLAMO IDENTIFICADO: Recolección de Residuos':
+            url = config.URL_RECOLECCION
+            break;
+        case 'RECLAMO IDENTIFICADO: Fuga de Agua':
+            url = config.URL_AGUA
+            break;
+        case 'RECLAMO IDENTIFICADO: Problemas de Gas':
+            url = config.URL_GAS
+            break;
+    }
+
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
