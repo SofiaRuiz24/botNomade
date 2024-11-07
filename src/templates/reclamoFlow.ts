@@ -59,7 +59,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             //console.log(ctxFn.state.getMyState())
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí
-                type: ctx.options,
+                type: ctxFn.state.get("type"),
                 name: ctxFn.state.get("name"),
                 docType: ctxFn.state.get("docType"),
                 docNumber: ctxFn.state.get("docNumber"),

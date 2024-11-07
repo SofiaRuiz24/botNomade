@@ -25,7 +25,8 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                 const response = await AI.chat(prompt, history);
                 await sheetsService.addConvertoUser(ctx.from, [{role: 'user', content: ctx.body}, {role: 'assistant', content: response}]);
                if(response.includes('RECLAMO IDENTIFICADO')){
-                    ctx.options = response;
+                console.log(response);
+                    await state.update({type: response});
                     return gotoFlow(reclamoFlow);
                }else{
                     return endFlow(response);
