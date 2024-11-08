@@ -10,7 +10,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             if (ctx.body === 'No, por ahora.') {
                 return ctxFn.endFlow('La solicitud ha sido cancelado. Puede realizar un reclamo en cualquier momento.')
             } else if (ctx.body === 'Sí, quiero.') {
-                const tipoReclamo = ctx.options;
+                const tipoReclamo = ctxFn.state.get("type");
                 return ctxFn.flowDynamic(`Perfecto, voy a proceder a hacerte algunas preguntas sobre el reclamo: ${tipoReclamo}.`)
             } else {
                 return ctxFn.fallBack('No entiendo tu respuesta.')
@@ -29,10 +29,11 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('Número de Documento:', { capture: true },
         async (ctx, ctxFn) => {
             const docNumberRegex = /^[A-Z0-9]{6,10}$/;   
-            if (!docNumberRegex.test(ctx.body)) {
+            const docNumberUpper = ctx.body.toUpperCase();
+            if (!docNumberRegex.test(docNumberUpper)) {
                 return ctxFn.fallBack('El número de documento ingresado no es válido. Por favor, ingresalo nuevamente.')
             }
-            await ctxFn.state.update({ docNumber: ctx.body })
+            await ctxFn.state.update({ docNumber: docNumberUpper })
         }
     )
     .addAnswer('Número de teléfono de contacto:', { capture: true },
@@ -66,15 +67,31 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ descriptionRec: ctx.body })
         })
-    .addAnswer('Ingrese la fecha (unicamente con numeros) en la que ocurrió el hecho:', { capture: true },
+    .addAnswer('Ingrese la fecha (dd/mm/aaaa):', { capture: true },
         async (ctx, ctxFn) => {
-            const dateRegex = /^[\d\-/.]{1,8}$/; 
+            // Acepta fechas con formato dd/mm/aaaa, dd-mm-aaaa, dd.mm.aaaa o dd mm aaaa
+            const dateRegex = /^\d{1,2}[\s./\-]\d{1,2}[\s./\-]\d{4}$/;
             if (!dateRegex.test(ctx.body)) {
-                return ctxFn.fallBack('La fecha ingresada no es válida, recuerde que solo se aceptan números. Por favor, ingresala nuevamente.')
+                return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos, guiones o espacios.')
             }
-            const fecha = ctx.body.replace(/[^0-9]/g, '');
-            await ctxFn.state.update({ dateRec: fecha })
-            //console.log(ctxFn.state.getMyState())          
+
+            // Elimina cualquier separador (espacios, puntos, guiones, barras) dejando solo números
+            const fechaLimpia = ctx.body.replace(/[\s./\-]/g, '');
+            
+            // Convertir la fecha ingresada a formato Date
+            const dia = parseInt(fechaLimpia.substring(0, 2));
+            const mes = parseInt(fechaLimpia.substring(2, 4)) - 1; // Los meses en JS van de 0-11
+            const anio = parseInt(fechaLimpia.substring(4, 8));
+            const fechaIngresada = new Date(anio, mes, dia);
+            
+            // Obtener la fecha actual
+            const fechaActual = new Date();
+            fechaActual.setHours(0, 0, 0, 0); // Resetear la hora a 00:00:00
+
+            if (fechaIngresada > fechaActual) {
+                return ctxFn.fallBack('La fecha no puede ser posterior al día de hoy.')
+            }
+            await ctxFn.state.update({ dateRec: fechaLimpia })
         }
     )
     .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
