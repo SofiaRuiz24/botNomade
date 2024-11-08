@@ -1,5 +1,6 @@
 import { addKeyword, EVENTS } from "@builderbot/bot";
 import sheetsService from "~/services/sheetsService";
+import { faqFlow } from "./faqFlow";
 
 const registerFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('Para comenzar te solicitaremos algunos datos personales.', { capture: true, buttons: [{body:'Si, quiero!'}, {body: 'No, gracias!'}]},
@@ -27,6 +28,7 @@ const registerFlow = addKeyword(EVENTS.ACTION)
             const state = ctxFn.state.getMyState()
             await sheetsService.createUser(ctx.from, state.name, ctx.body)
             await ctxFn.flowDynamic('¡Gracias por registrarte! Tus datos han sido guardados con éxito. ¿Ahora sí, en qué puedo ayudarte?')
+            return ctxFn.gotoFlow(faqFlow)
     })
 
     export { registerFlow };

@@ -10,7 +10,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             if (ctx.body === 'No, por ahora.') {
                 return ctxFn.endFlow('La solicitud ha sido cancelado. Puede realizar un reclamo en cualquier momento.')
             } else if (ctx.body === 'Sí, quiero.') {
-                const tipoReclamo = ctxFn.state.get("type");
+                const tipoReclamo = ctxFn.state.get("type").split(": ")[1];
                 return ctxFn.flowDynamic(`Perfecto, voy a proceder a hacerte algunas preguntas sobre el reclamo: ${tipoReclamo}.`)
             } else {
                 return ctxFn.fallBack('No entiendo tu respuesta.')
