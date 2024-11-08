@@ -73,7 +73,7 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         const filePath = path.resolve(localPath);
         //const filePath = `../../assets/tmp/${reclamo.id}.jpeg`; // Reemplaza con la ruta real del archivo si tienes uno
        
-        if (filePath  !== '') {
+        if (filePath  !== '' && filePath !== undefined && filePath !== 'base-ts-meta-memory' && filePath !== 'base-ts-meta-memory.d.ts' && filePath !== 'undefined' && filePath !== 'base_ts_meta_memory') {
             const fileInput = await page.$('input[type="file"]#claim_answers_attributes_1_files'); // Ajusta el ID si es necesario
             if (fileInput) {
                 await (fileInput as any).uploadFile(filePath );
