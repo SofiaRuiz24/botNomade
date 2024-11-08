@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 export const config = {
-  port: process.env.PORT || 3008,
+  port: process.env.PORT || 3009,
     //Meta
     jwtToken: process.env.jwtToken,
     numberId: process.env.numberId,
@@ -26,6 +26,6 @@ export const config = {
     URL_AGUA : process.env.fugaDeAgua,
     URL_GAS : process.env.problemasGas,
   //Gemini
-  GEMINI_APIKEY: process.env.GEMINI_APIKEY,
+  GEMINI_APIKEY: process.env.GEMINI_API_KEY,
   
 };

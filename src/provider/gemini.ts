@@ -23,7 +23,7 @@ export async function imageToText(prompt: string, imagePath: string): Promise<st
     const image = {
         inlineData:{
             data: imageBuffer.toString('base64'),
-            mimeType: "image/png",
+            mimeType: "image/jpeg",
         }
     }
 

@@ -21,14 +21,14 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ name: ctx.body })
         }
     )
-    .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'Pasaporte' }, { body: 'Cédula de Identidad' }] },
+    .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'PASAPORTE' }, { body: 'LIBRETA CIVICA' }] },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ docType: ctx.body })
         }
     )
     .addAnswer('Número de Documento:', { capture: true },
         async (ctx, ctxFn) => {
-            const docNumberRegex = /"^[A-Z0-9]{6,10}$"/;   
+            const docNumberRegex = /^[A-Z0-9]{6,10}$/;   
             if (!docNumberRegex.test(ctx.body)) {
                 return ctxFn.fallBack('El número de documento ingresado no es válido. Por favor, ingresalo nuevamente.')
             }
@@ -39,7 +39,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
         async (ctx, ctxFn) => {
             const numberRegex = /^[0-9]{9,14}$/;
             if (!numberRegex.test(ctx.body)) {
-                return ctxFn.fallBack('El número de teléfono ingresado no es válido}')
+                return ctxFn.fallBack('El número de teléfono ingresado no es válido')
             }
             await ctxFn.state.update({ phone: ctx.body })
         }
@@ -66,27 +66,26 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ descriptionRec: ctx.body })
         })
-    .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
-        async (ctx, ctxFn) => {
-            if (ctx.body === 'No, por ahora.') {
-                return ctxFn.flowDynamic('La solicitud será procesada sin imágenes.')
-            } else if (ctx.body === 'Sí, quiero.') {
-                return ctxFn.gotoFlow(imageFlow)
-            } else {
-                return ctxFn.fallBack('No entiendo tu respuesta.')
-            }
-        }
-    )
     .addAnswer('Ingrese la fecha (unicamente con numeros) en la que ocurrió el hecho:', { capture: true },
         async (ctx, ctxFn) => {
-            const dateRegex = /^[\d\-\/\.]{1,8}$/; 
+            const dateRegex = /^[\d\-/.]{1,8}$/; 
             if (!dateRegex.test(ctx.body)) {
                 return ctxFn.fallBack('La fecha ingresada no es válida, recuerde que solo se aceptan números. Por favor, ingresala nuevamente.')
             }
             const fecha = ctx.body.replace(/[^0-9]/g, '');
             await ctxFn.state.update({ dateRec: fecha })
-            //console.log(ctxFn.state.getMyState())
-            
+            //console.log(ctxFn.state.getMyState())          
+        }
+    )
+    .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
+        async (ctx, ctxFn) => {
+            if (ctx.body === 'No, por ahora.') {
+                ctxFn.flowDynamic('La solicitud será procesada sin imágenes.')
+            } else if (ctx.body === 'Sí, quiero.') {
+                return ctxFn.gotoFlow(imageFlow)
+            } else {
+                return ctxFn.fallBack('No entiendo tu respuesta.')
+            }
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí
                 type: ctxFn.state.get("type"),
@@ -102,9 +101,9 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 usuario: ctx.from // Extrae el usuario o asigna el identificador adecuado
             };
 
-            const resultado = await crearReclamo(reclamoData);
+            const resultado = await crearReclamo(reclamoData);  
             try {
-                await completarFormularioOnline(reclamoData);
+                await completarFormularioOnline(reclamoData , '');
             } catch (error) {
                 console.error("Error al completar el formulario:", error);
                 console.log(reclamoData);
@@ -115,8 +114,8 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
             }
-            
         }
     )
+    
     
 export { reclamoFlow };

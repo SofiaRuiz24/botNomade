@@ -1,8 +1,9 @@
 import puppeteer from 'puppeteer';
 import { Reclamo } from '~/model/Reclamo';
 import { config } from '~/config';
+import path from 'path';
 
-export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void> => {
+export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: string): Promise<void> => {
     let url = '';
     console.log(reclamo.type);
     switch (reclamo.type) {
@@ -66,16 +67,22 @@ export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void>
         // Completar la segunda sección
         await page.type('#claim_answers_attributes_0_input_text', reclamo.descriptionRec); // Descripción del reclamo
         //await page.type('#claim_answers_attributes_11_input_string', reclamo.dateRec.toISOString().split('T')[0]); // Fecha del reclamo en formato YYYY-MM-DD
-        await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec);
-        await page.keyboard.press('Enter'); 
+       
         
         //Adjuntar un archivo si es necesario
-        const filePath = `../../assets/tmp/${reclamo.id}.png`; // Reemplaza con la ruta real del archivo si tienes uno
-        const fileInput = await page.$('#claim_answers_attributes_1_files'); // Ajusta el ID si es necesario
-        if (fileInput) {
-            await (fileInput as any).uploadFile(filePath);
-        }
+        const filePath = path.resolve(localPath);
+        //const filePath = `../../assets/tmp/${reclamo.id}.jpeg`; // Reemplaza con la ruta real del archivo si tienes uno
+       
+        if (filePath  !== '') {
+            const fileInput = await page.$('input[type="file"]#claim_answers_attributes_1_files'); // Ajusta el ID si es necesario
+            if (fileInput) {
+                await (fileInput as any).uploadFile(filePath );
+                
+            }
 
+        }
+        await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec);
+        await page.keyboard.press('Enter'); 
         // Enviar el formulario
         //await page.click('input[value="Enviar"]');
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
