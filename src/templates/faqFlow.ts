@@ -16,7 +16,7 @@ const prompt = fs.readFileSync(pathPrompts, 'utf-8');
 
 export const faqFlow = addKeyword(EVENTS.ACTION)
     .addAction({capture: true},
-        async(ctx, {state, endFlow, gotoFlow}) => {
+        async(ctx, ctxFn) => {
             const history = await sheetsService.getUserConv(ctx.from);
             history.push({role: 'user', content: ctx.body});
             console.log('Historial:', history);
@@ -26,14 +26,14 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                 await sheetsService.addConvertoUser(ctx.from, [{role: 'user', content: ctx.body}, {role: 'assistant', content: response}]);
                if(response.includes('RECLAMO IDENTIFICADO')){
                 console.log(response);
-                    await state.update({type: response});
-                    return gotoFlow(reclamoFlow);
+                    await ctxFn.state.update({type: response});
+                    return ctxFn.gotoFlow(reclamoFlow);
                }else{
-                    return endFlow(response);
+                    return ctxFn.fallBack(response);
                }
             } catch (error) {
                 console.log('Error en llamada a OpenAI', error);
-                return endFlow('Error, Por favor intenta de nuevo');
+                return ctxFn.endFlow('Error, Por favor intenta de nuevo');
             }
             }
     );
