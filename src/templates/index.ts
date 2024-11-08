@@ -11,5 +11,4 @@ export default createFlow([
     registerFlow,
     reclamoFlow,
     imageFlow,
-    
 ]);

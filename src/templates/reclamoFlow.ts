@@ -2,6 +2,7 @@ import { addKeyword, EVENTS } from "@builderbot/bot";
 import { crearReclamo } from "~/controller/reclamoController";
 import { Reclamo } from "~/model/Reclamo";
 import { completarFormularioOnline } from "~/services/recArboles";
+import { imageFlow } from "./imageFlow";
 
 const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('¿Desea iniciar una solicitud para su reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
@@ -65,6 +66,17 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ descriptionRec: ctx.body })
         })
+    .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
+        async (ctx, ctxFn) => {
+            if (ctx.body === 'No, por ahora.') {
+                return ctxFn.flowDynamic('La solicitud será procesada sin imágenes.')
+            } else if (ctx.body === 'Sí, quiero.') {
+                return ctxFn.gotoFlow(imageFlow)
+            } else {
+                return ctxFn.fallBack('No entiendo tu respuesta.')
+            }
+        }
+    )
     .addAnswer('Ingrese la fecha (unicamente con numeros) en la que ocurrió el hecho:', { capture: true },
         async (ctx, ctxFn) => {
             const dateRegex = /^[\d\-\/\.]{1,8}$/; 
@@ -74,6 +86,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             const fecha = ctx.body.replace(/[^0-9]/g, '');
             await ctxFn.state.update({ dateRec: fecha })
             //console.log(ctxFn.state.getMyState())
+            
             const reclamoData: Reclamo = {
                 id: "estoesunid", // Puedes asignar un ID generado o único aquí
                 type: ctxFn.state.get("type"),
@@ -98,11 +111,12 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             }
 
             if (resultado) {
-                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito. Si necesita puede agregar una imagen o archivo relacionado con el reclamo.');
+                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito.');
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
             }
             
         }
     )
+    
 export { reclamoFlow };
