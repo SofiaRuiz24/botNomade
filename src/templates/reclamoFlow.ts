@@ -70,13 +70,13 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('Ingrese la fecha (dd/mm/aaaa):', { capture: true },
         async (ctx, ctxFn) => {
             // Acepta fechas con formato dd/mm/aaaa, dd-mm-aaaa, dd.mm.aaaa o dd mm aaaa
-            const dateRegex = /^\d{1,2}[\s./\-]\d{1,2}[\s./\-]\d{4}$/;
+            const dateRegex = /^\d{1,2}[\s./-]\d{1,2}[\s./-]\d{4}$/;
             if (!dateRegex.test(ctx.body)) {
                 return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos, guiones o espacios.')
             }
 
             // Elimina cualquier separador (espacios, puntos, guiones, barras) dejando solo números
-            const fechaLimpia = ctx.body.replace(/[\s./\-]/g, '');
+            const fechaLimpia = ctx.body.replace(/[\s./-]/g, '');
             
             // Convertir la fecha ingresada a formato Date
             const dia = parseInt(fechaLimpia.substring(0, 2));
