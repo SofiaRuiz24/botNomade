@@ -16,3 +16,18 @@ export async function chatGemini(prompt: string, text: string){
     return answer;
 }
 
+export async function imageToText(prompt: string, imagePath: string): Promise<string> {
+    
+    const resolvePath = path.resolve(imagePath);
+    const imageBuffer = fs.readFileSync(resolvePath);
+    const image = {
+        inlineData:{
+            data: imageBuffer.toString('base64'),
+            mimeType: "image/png",
+        }
+    }
+
+    const result = await model.generateContent([prompt, image]);
+    return result.response.text();
+}
+

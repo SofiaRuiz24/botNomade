@@ -69,15 +69,15 @@ export const completarFormularioOnline = async (reclamo: Reclamo): Promise<void>
         await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec);
         await page.keyboard.press('Enter'); 
         
-        /* Adjuntar un archivo si es necesario
-        const filePath = '/path/to/file.jpg'; // Reemplaza con la ruta real del archivo si tienes uno
-        const fileInput = await page.$('#claim_answers_attributes_12_input_file'); // Ajusta el ID si es necesario
+        //Adjuntar un archivo si es necesario
+        const filePath = `../../assets/tmp/${reclamo.id}.png`; // Reemplaza con la ruta real del archivo si tienes uno
+        const fileInput = await page.$('#claim_answers_attributes_1_files'); // Ajusta el ID si es necesario
         if (fileInput) {
-            await fileInput.uploadFile(filePath);
-        }*/
+            await (fileInput as any).uploadFile(filePath);
+        }
 
         // Enviar el formulario
-        /*await page.click('input[value="Enviar"]');*/
+        //await page.click('input[value="Enviar"]');
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
         // Esperar a que el formulario se envíe
