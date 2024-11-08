@@ -15,7 +15,7 @@ const pathPrompts = path.join(
 const prompt = fs.readFileSync(pathPrompts, 'utf-8');
 
 export const faqFlow = addKeyword(EVENTS.ACTION)
-    .addAction(
+    .addAction({capture: true},
         async(ctx, {state, endFlow, gotoFlow}) => {
             const history = await sheetsService.getUserConv(ctx.from);
             history.push({role: 'user', content: ctx.body});
