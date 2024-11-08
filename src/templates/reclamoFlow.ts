@@ -3,6 +3,7 @@ import { crearReclamo } from "~/controller/reclamoController";
 import { Reclamo } from "~/model/Reclamo";
 import { completarFormularioOnline } from "~/services/recArboles";
 import { imageFlow } from "./imageFlow";
+import { v4 as uuidv4 } from 'uuid';
 
 const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('¿Desea iniciar una solicitud para su reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
@@ -104,7 +105,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.fallBack('No entiendo tu respuesta.')
             }
             const reclamoData: Reclamo = {
-                id: "estoesunid", // Puedes asignar un ID generado o único aquí
+                id: uuidv4(),
                 type: ctxFn.state.get("type"),
                 name: ctxFn.state.get("name"),
                 docType: ctxFn.state.get("docType"),

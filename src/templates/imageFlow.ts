@@ -3,11 +3,12 @@ import { addKeyword, EVENTS } from "@builderbot/bot";
 import { crearReclamo } from "~/controller/reclamoController";
 import { completarFormularioOnline } from "~/services/recArboles";
 import { Reclamo } from "~/model/Reclamo";
+import { v4 as uuidv4 } from 'uuid';
 
 const imageFlow = addKeyword(EVENTS.MEDIA)
     .addAnswer('Perfecto, ingrese la imagen', { capture: true }, async (ctx, ctxFn) => {
         const reclamoData: Reclamo = {
-            id: "estoesunid", // Puedes asignar un ID generado o único aquí
+            id: uuidv4(), // Puedes asignar un ID generado o único aquí
             type: ctxFn.state.get("type"),
             name: ctxFn.state.get("name"),
             docType: ctxFn.state.get("docType"),
