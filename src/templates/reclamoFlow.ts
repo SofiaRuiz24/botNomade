@@ -29,7 +29,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     )
     .addAnswer('Número de Documento:', { capture: true },
         async (ctx, ctxFn) => {
-            const docNumberRegex = /^[A-Z0-9]{6,10}$/;   
+            const docNumberRegex = /^[A-Z0-9]{6,}$/;   
             const docNumberUpper = ctx.body.toUpperCase();
             if (!docNumberRegex.test(docNumberUpper)) {
                 return ctxFn.fallBack('El número de documento ingresado no es válido. Por favor, ingresalo nuevamente.')
@@ -55,13 +55,28 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ email: ctx.body })
         }
     )
-    .addAnswer('Dirección del solicitante:', { capture: true },
+    .addAnswer('Dirección del solicitante, ingrese el nombre de la calle:', { capture: true },
         async (ctx, ctxFn) => {
             const direccionRegex = /^[a-zA-Z0-9\s]{5,}$/;
             if (!direccionRegex.test(ctx.body)) {
                 return ctxFn.fallBack('La dirección ingresada no es válida. Por favor, ingresala nuevamente.')
             }
             await ctxFn.state.update({ address: ctx.body })
+        }
+    )
+    .addAnswer('Ingrese el número de la dirección:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ direcNum: ctx.body })
+        }
+    )
+    .addAnswer('Si necesita, ingrese el piso o casa:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ piso: ctx.body })
+        }
+    )
+    .addAnswer('Ingrese el departamento:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ dpto: ctx.body })
         }
     )
     .addAnswer('Los datos del solicitante han sido cargados exitosamente 👏.\nAhora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
@@ -73,7 +88,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             // Acepta fechas con formato dd/mm/aaaa, dd-mm-aaaa, dd.mm.aaaa o dd mm aaaa
             const dateRegex = /^\d{1,2}[\s./-]\d{1,2}[\s./-]\d{4}$/;
             if (!dateRegex.test(ctx.body)) {
-                return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos, guiones o espacios.')
+                return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos o espacios.')
             }
 
             // Elimina cualquier separador (espacios, puntos, guiones, barras) dejando solo números
@@ -90,7 +105,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             fechaActual.setHours(0, 0, 0, 0); // Resetear la hora a 00:00:00
 
             if (fechaIngresada > fechaActual) {
-                return ctxFn.fallBack('La fecha no puede ser posterior al día de hoy.')
+                return ctxFn.fallBack('La fecha no puede ser posterior al día de hoy. Ingrese la fecha nuevamente.')
             }
             await ctxFn.state.update({ dateRec: fechaLimpia })
         }
@@ -113,6 +128,9 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 phone: ctxFn.state.get("phone"),
                 email: ctxFn.state.get("email"),
                 address: ctxFn.state.get("address"),
+                direcNum: ctxFn.state.get("direcNum"),
+                piso: ctxFn.state.get("piso"),
+                dpto: ctxFn.state.get("dpto"),
                 descriptionRec: ctxFn.state.get("descriptionRec"),
                 dateRec: ctxFn.state.get("dateRec"),
                 estado: 'Pendiente',

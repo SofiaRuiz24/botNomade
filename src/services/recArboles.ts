@@ -55,10 +55,10 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
 
         // Campos de dirección
         await page.type('#address_street', reclamo.address); // Calle
-        await page.type('#address_number', "123"); // Número
-        await page.type('#address_floor', "1"); // Piso/Casa (ajusta según el dato si está disponible)
-        await page.type('#address_apartment', "Departamento"); // Dpto
-        await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
+        await page.type('#address_number', reclamo.direcNum); // Número
+        await page.type('#address_floor', reclamo.piso ); // Piso/Casa (ajusta según el dato si está disponible)
+        await page.type('#address_apartment', reclamo.dpto); // Dpto
+        //await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
 
         // Hacer clic en el botón "Siguiente"
         await page.click('input[value="Siguiente"]'); // Ajusta el selector si es necesario
