@@ -17,9 +17,5 @@ const main = async () => {
         database: new Database(),
     })
     httpServer(PORT);
-
-    
-
-  
 }
 main()
