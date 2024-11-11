@@ -1,4 +1,3 @@
-import exp from "constants";
 import mongoose from "mongoose";
 
 export interface Reclamo {
@@ -14,6 +13,10 @@ export interface Reclamo {
     dateRec: string;
     estado: string;
     usuario: string;
+    imagen?: {
+        data: Buffer,
+        contentType: string
+    };
 }
 
 const reclamoSchema = new mongoose.Schema({
@@ -29,6 +32,10 @@ const reclamoSchema = new mongoose.Schema({
     dateRec: { type: String, required: false },
     estado: { type: String, required: false },
     usuario: { type: String, required: true },
+    imagen: {
+        data: Buffer,
+        contentType: String
+    }
 });
 
 const ReclamoModel = mongoose.model<Reclamo>('Reclamo', reclamoSchema);
