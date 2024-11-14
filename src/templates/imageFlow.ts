@@ -28,6 +28,7 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
         const localPath = await ctxFn.provider.saveFile(ctx, { path: `./assets/tmp/` });
         
         try {
+            ctxFn.flowDynamic('Aguradá un momento, por favor. Estamos procesando tu solicitud...');
             // Primero completamos el formulario online
             await completarFormularioOnline(reclamoData, localPath);
             
@@ -35,7 +36,7 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
             const resultado = await crearReclamo(reclamoData, localPath);
 
             if (resultado) {
-                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito.');
+                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Hemos registrado tu reclamo con éxito, y pronto será procesado por nuestro equipo municipal. En breve recibirás un correo de confirmación con los detalles de tu solicitud. Cualquier duda, aquí estamos para ayudarte.');
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
             }

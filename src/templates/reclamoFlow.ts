@@ -27,7 +27,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ lastname: ctx.body })
         }
     )
-    .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'PASAPORTE' }, { body: 'LIBRETA CIVICA' }] },
+    .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'PASAPORTE' }] },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ docType: ctx.body })
         }
@@ -118,7 +118,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
         async (ctx, ctxFn) => {
             if (ctx.body === 'No, por ahora.') {
-                ctxFn.flowDynamic('La solicitud será procesada sin imágenes.')
+                ctxFn.flowDynamic('La solicitud será procesada sin imágenes.Aguarde un momento, por favor.')
             } else if (ctx.body === 'Sí, quiero.') {
                 return ctxFn.gotoFlow(imageFlow)
             } else {
@@ -152,7 +152,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             }
 
             if (resultado) {
-                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito.');
+                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Hemos registrado tu reclamo con éxito, y pronto será procesado por nuestro equipo municipal. En breve recibirás un correo de confirmación con los detalles de tu solicitud. Cualquier duda, aquí estamos para ayudarte.');
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
             }
