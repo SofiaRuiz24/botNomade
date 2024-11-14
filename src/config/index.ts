@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 export const config = {
-  port: process.env.PORT || 3009,
+  port: process.env.PORT || 3008,
     //Meta
     jwtToken: process.env.jwtToken,
     numberId: process.env.numberId,
