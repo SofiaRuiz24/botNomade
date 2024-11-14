@@ -1,7 +1,7 @@
 import { addKeyword, EVENTS } from "@builderbot/bot";
 //import { imageToText } from "../provider/gemini";
 import { crearReclamo } from "~/controller/reclamoController";
-import { completarFormularioOnline } from "~/services/recArboles";
+import { completarFormularioOnline } from "~/services/autoReclamo";
 import { Reclamo } from "~/model/Reclamo";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -11,6 +11,7 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
             id: uuidv4(), // Puedes asignar un ID generado o único aquí
             type: ctxFn.state.get("type"),
             name: ctxFn.state.get("name"),
+            lastname: ctxFn.state.get("lastname"),
             docType: ctxFn.state.get("docType"),
             docNumber: ctxFn.state.get("docNumber"),
             phone: ctxFn.state.get("phone"),

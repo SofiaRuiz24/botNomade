@@ -47,11 +47,12 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         await page.goto(url, { waitUntil: 'networkidle2' });
 
         // Completar cada campo del formulario usando IDs secuenciales
-        await page.type('#claim_answers_attributes_0_input_string', reclamo.name); // Nombre Completo
-        await page.select('#claim_answers_attributes_1_input_string', reclamo.docType); // Tipo de Documento (campo de selección)
-        await page.type('#claim_answers_attributes_2_input_string', reclamo.docNumber); // Número de Documento
-        await page.type('#claim_answers_attributes_3_input_string', reclamo.phone); // Teléfono
-        await page.type('#claim_answers_attributes_4_input_string', reclamo.email); // Correo Electrónico
+        await page.type('#person_name', reclamo.name);//Nombre
+        await page.type('#person_flastname', reclamo.lastname); // Apellido 
+        await page.select('#person_identifier_type', reclamo.docType); // Tipo de Documento (campo de selección)
+        await page.type('#person_identifier', reclamo.docNumber); // Número de Documento
+        await page.type('#person_phone', reclamo.phone); // Teléfono
+        await page.type('#person_email', reclamo.email); // Correo Electrónico
 
         // Campos de dirección
         await page.type('#address_street', reclamo.address); // Calle

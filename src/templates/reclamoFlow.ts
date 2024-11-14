@@ -1,7 +1,7 @@
 import { addKeyword, EVENTS } from "@builderbot/bot";
 import { crearReclamo } from "~/controller/reclamoController";
 import { Reclamo } from "~/model/Reclamo";
-import { completarFormularioOnline } from "~/services/recArboles";
+import { completarFormularioOnline } from "~/services/autoReclamo";
 import { imageFlow } from "./imageFlow";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,9 +17,14 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.fallBack('No entiendo tu respuesta.')
             }
         })
-    .addAnswer('Nombre y apellido del solicitante:', { capture: true },
+    .addAnswer('Nombre del solicitante:', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ name: ctx.body })
+        }
+    )
+    .addAnswer('Apellido del solicitante:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ lastname: ctx.body })
         }
     )
     .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'PASAPORTE' }, { body: 'LIBRETA CIVICA' }] },
@@ -108,6 +113,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 id: uuidv4(),
                 type: ctxFn.state.get("type"),
                 name: ctxFn.state.get("name"),
+                lastname: ctxFn.state.get("lastname"),
                 docType: ctxFn.state.get("docType"),
                 docNumber: ctxFn.state.get("docNumber"),
                 phone: ctxFn.state.get("phone"),

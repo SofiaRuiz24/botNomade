@@ -14,6 +14,7 @@ Transporte Público: problemas con el transporte público, como retrasos o condi
 Recolección de Residuos: sobre recolección de residuos, falta de contenedores o basura acumulada.
 Problemas de Agua: mención de pérdida de agua o problemas con el suministro.
 Fuga de Gas: problemas con el suministro de gas.
+Ruta Deteriorada:rutas en mal estado que presentan baches, grietas y falta de señalización.
 Instrucciones:
 
 Analiza el mensaje y devuelve únicamente el "RECLAMO IDENTIFICADO" junto con el nombre correspondiente (por ejemplo, "RECLAMO IDENTIFICADO: Alumbrado Público").

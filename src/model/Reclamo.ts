@@ -5,6 +5,7 @@ export interface Reclamo {
     id: string;
     type: string;
     name: string;
+    lastname: string;
     docType: string;
     docNumber: string;
     phone: string;
@@ -20,6 +21,7 @@ const reclamoSchema = new mongoose.Schema({
     id: { type: String, required: true },
     type: { type: String, required: true },
     name: { type: String, required: true },
+    lastname: { type: String, required: true },
     docType: { type: String, required: true },
     docNumber: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
