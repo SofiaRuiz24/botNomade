@@ -37,6 +37,9 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         case 'RECLAMO IDENTIFICADO: Problemas de Gas':
             url = config.URL_GAS
             break;
+        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada':
+            url = config.URL_RUTA
+            break
     }
 
     const browser = await puppeteer.launch({ headless: false });
