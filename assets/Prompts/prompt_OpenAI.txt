@@ -22,6 +22,7 @@ Fuga de Agua: si el contribuyente menciona pérdida de agua o problemas con el s
 
 Problemas de Gas: cuando el mensaje mencione problemas con el suministro de gas, proporciona el enlace correspondiente: https://reclamos.reclamos311.com.ar/incidents/14-problemas-de-gas/claims/new
 
+Ruta Deteriorada: rutas en mal estado presentan baches, grietas y falta de señalización.
 Instrucciones adicionales:
 
 Analiza el mensaje del contribuyente en busca de palabras clave que indiquen la categoría de reclamo.
