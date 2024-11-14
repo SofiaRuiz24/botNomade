@@ -4,6 +4,7 @@ import { provider } from "../src/provider";
 import templates from "../src/templates";
 import { config } from "../src/config";
 import { conectarDB } from "./db/mongoDB";
+import * as puppeteer from "puppeteer";
 
 const PORT = Number(config.port);
 

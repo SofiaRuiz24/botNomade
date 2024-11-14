@@ -12,8 +12,8 @@ Ruidos Molestos: se refiere a ruidos fuertes, fiestas o sonidos molestos fuera d
 Poda de Árboles: árboles que necesitan poda o ramas caídas.
 Transporte Público: problemas con el transporte público, como retrasos o condiciones de las unidades.
 Recolección de Residuos: sobre recolección de residuos, falta de contenedores o basura acumulada.
-Fuga de Agua: mención de pérdida de agua o problemas con el suministro.
-Problemas de Gas: problemas con el suministro de gas.
+Problemas de Agua: mención de pérdida de agua o problemas con el suministro.
+Fuga de Gas: problemas con el suministro de gas.
 Instrucciones:
 
 Analiza el mensaje y devuelve únicamente el "RECLAMO IDENTIFICADO" junto con el nombre correspondiente (por ejemplo, "RECLAMO IDENTIFICADO: Alumbrado Público").

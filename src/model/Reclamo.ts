@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 
 export interface Reclamo {
     id: string;
+    type: string;
     name: string;
     docType: string;
     docNumber: string;
@@ -17,6 +18,7 @@ export interface Reclamo {
 
 const reclamoSchema = new mongoose.Schema({
     id: { type: String, required: true },
+    type: { type: String, required: true },
     name: { type: String, required: true },
     docType: { type: String, required: true },
     docNumber: { type: String, required: true, unique: true },
