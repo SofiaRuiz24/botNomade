@@ -1,7 +1,7 @@
 import { addKeyword, EVENTS } from "@builderbot/bot";
 import { crearReclamo } from "~/controller/reclamoController";
 import { Reclamo } from "~/model/Reclamo";
-import { completarFormularioOnline } from "~/services/recArboles";
+import { completarFormularioOnline } from "~/services/autoReclamo";
 import { imageFlow } from "./imageFlow";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,19 +17,24 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.fallBack('No entiendo tu respuesta.')
             }
         })
-    .addAnswer('Nombre y apellido del solicitante:', { capture: true },
+    .addAnswer('Nombre del solicitante:', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ name: ctx.body })
         }
     )
-    .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'PASAPORTE' }, { body: 'LIBRETA CIVICA' }] },
+    .addAnswer('Apellido del solicitante:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ lastname: ctx.body })
+        }
+    )
+    .addAnswer('Tipo de Documento:', { capture: true, buttons: [{ body: 'DNI' }, { body: 'PASAPORTE' }] },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ docType: ctx.body })
         }
     )
     .addAnswer('Número de Documento:', { capture: true },
         async (ctx, ctxFn) => {
-            const docNumberRegex = /^[A-Z0-9]{6,10}$/;   
+            const docNumberRegex = /^[A-Z0-9]{6,}$/;   
             const docNumberUpper = ctx.body.toUpperCase();
             if (!docNumberRegex.test(docNumberUpper)) {
                 return ctxFn.fallBack('El número de documento ingresado no es válido. Por favor, ingresalo nuevamente.')
@@ -55,13 +60,28 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ email: ctx.body })
         }
     )
-    .addAnswer('Dirección del solicitante:', { capture: true },
+    .addAnswer('Dirección del solicitante, ingrese el nombre de la calle:', { capture: true },
         async (ctx, ctxFn) => {
             const direccionRegex = /^[a-zA-Z0-9\s]{5,}$/;
             if (!direccionRegex.test(ctx.body)) {
                 return ctxFn.fallBack('La dirección ingresada no es válida. Por favor, ingresala nuevamente.')
             }
             await ctxFn.state.update({ address: ctx.body })
+        }
+    )
+    .addAnswer('Ingrese el número de la dirección:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ direcNum: ctx.body })
+        }
+    )
+    .addAnswer('Si necesita, ingrese el piso o casa:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ piso: ctx.body })
+        }
+    )
+    .addAnswer('Ingrese el departamento:', { capture: true },
+        async (ctx, ctxFn) => {
+            await ctxFn.state.update({ dpto: ctx.body })
         }
     )
     .addAnswer('Los datos del solicitante han sido cargados exitosamente 👏.\nAhora continuaremos con el reclamo, proporciona una descripción del mismo: ', { capture: true },
@@ -73,7 +93,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             // Acepta fechas con formato dd/mm/aaaa, dd-mm-aaaa, dd.mm.aaaa o dd mm aaaa
             const dateRegex = /^\d{1,2}[\s./-]\d{1,2}[\s./-]\d{4}$/;
             if (!dateRegex.test(ctx.body)) {
-                return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos, guiones o espacios.')
+                return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos o espacios.')
             }
 
             // Elimina cualquier separador (espacios, puntos, guiones, barras) dejando solo números
@@ -90,7 +110,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             fechaActual.setHours(0, 0, 0, 0); // Resetear la hora a 00:00:00
 
             if (fechaIngresada > fechaActual) {
-                return ctxFn.fallBack('La fecha no puede ser posterior al día de hoy.')
+                return ctxFn.fallBack('La fecha no puede ser posterior al día de hoy. Ingrese la fecha nuevamente.')
             }
             await ctxFn.state.update({ dateRec: fechaLimpia })
         }
@@ -98,7 +118,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
         async (ctx, ctxFn) => {
             if (ctx.body === 'No, por ahora.') {
-                ctxFn.flowDynamic('La solicitud será procesada sin imágenes.')
+                ctxFn.flowDynamic('La solicitud será procesada sin imágenes. Por favor aguarde un momento.')
             } else if (ctx.body === 'Sí, quiero.') {
                 return ctxFn.gotoFlow(imageFlow)
             } else {
@@ -108,11 +128,15 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 id: uuidv4(),
                 type: ctxFn.state.get("type"),
                 name: ctxFn.state.get("name"),
+                lastname: ctxFn.state.get("lastname"),
                 docType: ctxFn.state.get("docType"),
                 docNumber: ctxFn.state.get("docNumber"),
                 phone: ctxFn.state.get("phone"),
                 email: ctxFn.state.get("email"),
                 address: ctxFn.state.get("address"),
+                direcNum: ctxFn.state.get("direcNum"),
+                piso: ctxFn.state.get("piso"),
+                dpto: ctxFn.state.get("dpto"),
                 descriptionRec: ctxFn.state.get("descriptionRec"),
                 dateRec: ctxFn.state.get("dateRec"),
                 estado: 'Pendiente',
@@ -128,7 +152,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             }
 
             if (resultado) {
-                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Tu reclamo ha sido registrado con éxito.');
+                return ctxFn.flowDynamic('¡Gracias por tu tiempo! Hemos registrado tu reclamo con éxito, y pronto será procesado por nuestro equipo municipal. En breve recibirás un correo de confirmación con los detalles de tu solicitud. Cualquier duda, aquí estamos para ayudarte.');
             } else {
                 return ctxFn.flowDynamic('Hubo un problema al registrar tu reclamo. Por favor, intenta nuevamente más tarde.');
             }

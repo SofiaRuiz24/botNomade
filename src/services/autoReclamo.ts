@@ -37,33 +37,57 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         case 'RECLAMO IDENTIFICADO: Problemas de Gas':
             url = config.URL_GAS
             break;
+        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada':
+            url = config.URL_RUTA
+            break
     }
 
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
     try {
-        // Navegar a la URL del formulario
-        await page.goto(url, { waitUntil: 'networkidle2' });
+        let success = false;
+        let attempts = 0;
+        const maxAttempts = 5;
+
+        while (!success && attempts < maxAttempts) {
+            try {
+                console.log(`Intento ${attempts + 1} de ${maxAttempts} para acceder a la URL: ${url}`);
+                await page.goto(url, { waitUntil: 'networkidle2' });
+                success = true;
+                console.log("Formulario cargado exitosamente.");
+            } catch (error) {
+                console.error(`Error al intentar cargar la URL en el intento ${attempts + 1}:`, error);
+                attempts++;
+                if (attempts < maxAttempts) {
+                    console.log("Reintentando en 30 segundos...");
+                    await new Promise(resolve => setTimeout(resolve, 30000));
+                } else {
+                    console.error("No se pudo cargar la URL después de varios intentos.");
+                    throw new Error("Error al cargar la URL después de varios intentos.");
+                }
+            }
+        }
 
         // Completar cada campo del formulario usando IDs secuenciales
-        await page.type('#claim_answers_attributes_0_input_string', reclamo.name); // Nombre Completo
-        await page.select('#claim_answers_attributes_1_input_string', reclamo.docType); // Tipo de Documento (campo de selección)
-        await page.type('#claim_answers_attributes_2_input_string', reclamo.docNumber); // Número de Documento
-        await page.type('#claim_answers_attributes_3_input_string', reclamo.phone); // Teléfono
-        await page.type('#claim_answers_attributes_4_input_string', reclamo.email); // Correo Electrónico
+        await page.type('#person_name', reclamo.name);//Nombre
+        await page.type('#person_flastname', reclamo.lastname); // Apellido 
+        await page.select('#person_identifier_type', reclamo.docType); // Tipo de Documento (campo de selección)
+        await page.type('#person_identifier', reclamo.docNumber); // Número de Documento
+        await page.type('#person_phone', reclamo.phone); // Teléfono
+        await page.type('#person_email', reclamo.email); // Correo Electrónico
 
         // Campos de dirección
         await page.type('#address_street', reclamo.address); // Calle
-        await page.type('#address_number', "123"); // Número
-        await page.type('#address_floor', "1"); // Piso/Casa (ajusta según el dato si está disponible)
-        await page.type('#address_apartment', "Departamento"); // Dpto
-        await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
+        await page.type('#address_number', reclamo.direcNum); // Número
+        await page.type('#address_floor', reclamo.piso ); // Piso/Casa (ajusta según el dato si está disponible)
+        await page.type('#address_apartment', reclamo.dpto); // Dpto
+        //await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
 
         // Hacer clic en el botón "Siguiente"
         await page.click('input[value="Siguiente"]'); // Ajusta el selector si es necesario
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
+        await new Promise(resolve => setTimeout(resolve, 15000));
         // Completar la segunda sección
         await page.type('#claim_answers_attributes_0_input_text', reclamo.descriptionRec); // Descripción del reclamo
         //await page.type('#claim_answers_attributes_11_input_string', reclamo.dateRec.toISOString().split('T')[0]); // Fecha del reclamo en formato YYYY-MM-DD
@@ -72,7 +96,7 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         //Adjuntar un archivo si es necesario
         
         //const filePath = `../../assets/tmp/${reclamo.id}.jpeg`; // Reemplaza con la ruta real del archivo si tienes uno
-       
+       try{
         if (localPath  !== '' && localPath !== undefined && localPath !== 'base-ts-meta-memory' && localPath !== 'base-ts-meta-memory.d.ts' && localPath !== 'undefined' && localPath !== 'base_ts_meta_memory') {
             const filePath = path.resolve(localPath);
             const fileInput = await page.$('input[type="file"]#claim_answers_attributes_1_files'); // Ajusta el ID si es necesario
@@ -82,14 +106,18 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
             }
 
         }
+       }catch(e){
+           console.log("Error al subir el archivo", e);
+        }
         await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec);
         await page.keyboard.press('Enter'); 
         // Enviar el formulario
         //await page.click('input[value="Enviar"]');
-        await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        //await page.waitForNavigation({ waitUntil: 'networkidle2' });
 
-        // Esperar a que el formulario se envíe
-        await page.waitForNavigation();
+        // Esperar a que el formulario se envíe por completo 10 segundos
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
         console.log("Formulario enviado con éxito");
 
     } catch (error) {
