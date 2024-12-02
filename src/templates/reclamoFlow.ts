@@ -118,7 +118,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
         async (ctx, ctxFn) => {
             if (ctx.body === 'No, por ahora.') {
-                ctxFn.flowDynamic('La solicitud será procesada sin imágenes.Aguarde un momento, por favor.')
+                ctxFn.flowDynamic('La solicitud será procesada sin imágenes. Por favor aguarde un momento.')
             } else if (ctx.body === 'Sí, quiero.') {
                 return ctxFn.gotoFlow(imageFlow)
             } else {

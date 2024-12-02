@@ -28,7 +28,7 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
         const localPath = await ctxFn.provider.saveFile(ctx, { path: `./assets/tmp/` });
         
         try {
-            ctxFn.flowDynamic('Aguradá un momento, por favor. Estamos procesando tu solicitud...');
+            ctxFn.flowDynamic('Por favor aguarde un momento. Estamos procesando su solicitud...');
             // Primero completamos el formulario online
             await completarFormularioOnline(reclamoData, localPath);
             
