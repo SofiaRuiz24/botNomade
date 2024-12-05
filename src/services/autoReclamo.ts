@@ -8,36 +8,47 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
     console.log(reclamo.type);
     switch (reclamo.type) {
         case 'RECLAMO IDENTIFICADO: Poda de Árboles':
+        case 'RECLAMO IDENTIFICADO: Poda de Árboles.':
             url = config.URL_PODA;
             break;
         case 'RECLAMO IDENTIFICADO: Alumbrado Público':
+        case 'RECLAMO IDENTIFICADO: Alumbrado Público.':
             url = config.URL_ALUMBRADO
             break;
         case 'RECLAMO IDENTIFICADO: Animales Sueltos':
+        case 'RECLAMO IDENTIFICADO: Animales Sueltos.':
             url = config.URL_ANIMALES
             break;
         case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas':
+        case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas.':
             url = config.URL_OBRAS
             break;
         case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado':
+        case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado.':
             url = config.URL_VEREDAS
             break;
         case 'RECLAMO IDENTIFICADO: Ruidos Molestos':
+        case 'RECLAMO IDENTIFICADO: Ruidos Molestos.':
             url = config.URL_RUIDOS
             break;
         case 'RECLAMO IDENTIFICADO: Transporte Público':
+        case 'RECLAMO IDENTIFICADO: Transporte Público.':
             url = config.URL_TRANSPORTE
             break;
         case 'RECLAMO IDENTIFICADO: Recolección de Residuos':
+        case 'RECLAMO IDENTIFICADO: Recolección de Residuos.':
             url = config.URL_RECOLECCION
             break;
         case 'RECLAMO IDENTIFICADO: Fuga de Agua':
+        case 'RECLAMO IDENTIFICADO: Fuga de Agua.':
             url = config.URL_AGUA
             break;
         case 'RECLAMO IDENTIFICADO: Problemas de Gas':
+        case 'RECLAMO IDENTIFICADO: Problemas de Gas.':
             url = config.URL_GAS
             break;
         case 'RECLAMO IDENTIFICADO: Ruta Deteriorada':
+        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada.':
             url = config.URL_RUTA
             break
     }
@@ -83,11 +94,11 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         await page.type('#address_floor', reclamo.piso ); // Piso/Casa (ajusta según el dato si está disponible)
         await page.type('#address_apartment', reclamo.dpto); // Dpto
         //await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
-
+        await new Promise(resolve => setTimeout(resolve, 2000));
         // Hacer clic en el botón "Siguiente"
         await page.click('input[value="Siguiente"]'); // Ajusta el selector si es necesario
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
-        await new Promise(resolve => setTimeout(resolve, 15000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
         // Completar la segunda sección
         await page.type('#claim_answers_attributes_0_input_text', reclamo.descriptionRec); // Descripción del reclamo
         //await page.type('#claim_answers_attributes_11_input_string', reclamo.dateRec.toISOString().split('T')[0]); // Fecha del reclamo en formato YYYY-MM-DD
