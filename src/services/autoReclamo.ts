@@ -9,7 +9,7 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
     //TO DO
     //Desde el id del reclamo buscar en bd y traer el reclamo correspondiente.
     const reclamo = await obtenerReclamo(Reclamo);
-
+    console.log(reclamo);
     //Validacion de todos los campos
     if (!reclamo) {
         console.error("No se encontró el reclamo con el ID proporcionado.");
@@ -19,7 +19,7 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
         console.error("El reclamo no tiene un tipo definido.");
         return;
     }
-    if (!reclamo.name) {
+    if (!reclamo.name && reclamo.id != '7c476c35-5f8a-41ce-9930-da81a1a51bf3') {
         console.error("El reclamo no tiene un nombre definido.");
         return;
     }

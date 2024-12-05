@@ -39,7 +39,7 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                     response.includes('gas') ? response = 'Reclamo: Fuga de gas' : response;
                     response.includes('ruta') ? response = 'Reclamo: Rutas deteriorada' : response;
                     response.includes('animales') ? response = 'Reclamo: Animales Sueltos' : response;
-                    console.log('Nuevo Reclamo:', response);
+                    console.log('Nuevo ', response);
                     await ctxFn.state.update({type: response});
                     return ctxFn.gotoFlow(reclamoFlow);
                }else{
