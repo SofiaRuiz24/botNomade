@@ -37,7 +37,9 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
 
 export const obtenerReclamo = async (id: string): Promise<Reclamo | null> => {
     try {
-        const reclamo = await ReclamoModel.findById(id);
+        //buscar por campo nombre
+        const reclamo = await ReclamoModel.findOne({ id }); // Encuentra el reclamo por su id (campo único)
+        //const reclamo = await ReclamoModel.findById(id);
         return reclamo;
     } catch (error) {
         console.error("Error al obtener el reclamo:", error);
