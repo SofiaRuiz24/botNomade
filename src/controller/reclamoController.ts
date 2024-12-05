@@ -34,3 +34,13 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
         return null;
     }
 };
+
+export const obtenerReclamo = async (id: string): Promise<Reclamo | null> => {
+    try {
+        const reclamo = await ReclamoModel.findById(id);
+        return reclamo;
+    } catch (error) {
+        console.error("Error al obtener el reclamo:", error);
+        return null;
+    }
+};

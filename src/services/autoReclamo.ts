@@ -2,53 +2,97 @@ import puppeteer from 'puppeteer';
 import { Reclamo } from '~/model/Reclamo';
 import { config } from '~/config';
 import path from 'path';
+import { obtenerReclamo } from '~/controller/reclamoController';
 
-export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: string): Promise<void> => {
+export const completarFormularioOnline = async (Reclamo: string ,localPath: string): Promise<void> => {
     let url = '';
+    //TO DO
+    //Desde el id del reclamo buscar en bd y traer el reclamo correspondiente.
+    const reclamo = await obtenerReclamo(Reclamo);
+
+    //Validacion de todos los campos
+    if (!reclamo) {
+        console.error("No se encontró el reclamo con el ID proporcionado.");
+        return;
+    }
+    if (!reclamo.type) {
+        console.error("El reclamo no tiene un tipo definido.");
+        return;
+    }
+    if (!reclamo.name) {
+        console.error("El reclamo no tiene un nombre definido.");
+        return;
+    }
+    if (!reclamo.lastname) {
+        console.error("El reclamo no tiene un apellido definido.");
+        return;
+    }
+    if (!reclamo.docType) {
+        console.error("El reclamo no tiene un tipo de documento definido.");
+        return;
+    }
+    if (!reclamo.docNumber) {
+        console.error("El reclamo no tiene un número de documento definido.");
+        return;
+    }
+    if (!reclamo.phone) {
+        console.error("El reclamo no tiene un número de teléfono definido.");
+        return;
+    }
+    if (!reclamo.email) {
+        console.error("El reclamo no tiene un correo electrónico definido.");
+        return;
+    }
+    if (!reclamo.address) {
+        console.error("El reclamo no tiene una dirección definida.");
+        return;
+    }
+    if (!reclamo.direcNum) {
+        console.error("El reclamo no tiene un número de dirección definido.");
+        return;
+    }
+    if (!reclamo.descriptionRec) {
+        console.error("El reclamo no tiene una descripción definida.");
+        return;
+    }
+    if (!reclamo.dateRec) {
+        console.error("El reclamo no tiene una fecha definida.");
+        return;
+    }
     console.log(reclamo.type);
+  
     switch (reclamo.type) {
-        case 'RECLAMO IDENTIFICADO: Poda de Árboles':
-        case 'RECLAMO IDENTIFICADO: Poda de Árboles.':
+        case 'Reclamo: Poda de arboles':
             url = config.URL_PODA;
             break;
-        case 'RECLAMO IDENTIFICADO: Alumbrado Público':
-        case 'RECLAMO IDENTIFICADO: Alumbrado Público.':
+        case 'Reclamo: Alumbrado publico':
             url = config.URL_ALUMBRADO
             break;
-        case 'RECLAMO IDENTIFICADO: Animales Sueltos':
-        case 'RECLAMO IDENTIFICADO: Animales Sueltos.':
+        case 'Reclamo: Animales Sueltos':
             url = config.URL_ANIMALES
             break;
-        case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas':
-        case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas.':
+        case 'Reclamo: Obras publicas inconclusas':
             url = config.URL_OBRAS
             break;
-        case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado':
-        case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado.':
+        case 'Reclamo: Veredas en mal estado':
             url = config.URL_VEREDAS
             break;
-        case 'RECLAMO IDENTIFICADO: Ruidos Molestos':
-        case 'RECLAMO IDENTIFICADO: Ruidos Molestos.':
+        case 'Reclamo: Ruidos Molestos':
             url = config.URL_RUIDOS
             break;
-        case 'RECLAMO IDENTIFICADO: Transporte Público':
-        case 'RECLAMO IDENTIFICADO: Transporte Público.':
+        case 'Reclamo: Transporte publico' :
             url = config.URL_TRANSPORTE
             break;
-        case 'RECLAMO IDENTIFICADO: Recolección de Residuos':
-        case 'RECLAMO IDENTIFICADO: Recolección de Residuos.':
+        case 'Reclamo: Recoleccion de residuos':
             url = config.URL_RECOLECCION
             break;
-        case 'RECLAMO IDENTIFICADO: Fuga de Agua':
-        case 'RECLAMO IDENTIFICADO: Fuga de Agua.':
+        case 'Reclamo: Problemas de agua':
             url = config.URL_AGUA
             break;
-        case 'RECLAMO IDENTIFICADO: Problemas de Gas':
-        case 'RECLAMO IDENTIFICADO: Problemas de Gas.':
+        case 'Reclamo: Fuga de gas':
             url = config.URL_GAS
             break;
-        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada':
-        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada.':
+        case 'Reclamo: Rutas deteriorada':
             url = config.URL_RUTA
             break
     }
@@ -82,6 +126,16 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
 
         // Completar cada campo del formulario usando IDs secuenciales
         await page.type('#person_name', reclamo.name);//Nombre
+        //verificar que se haya completado el campo nombre con puppeteer
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        try {
+            const name = await page.$eval('#person_name', el => (el as HTMLInputElement).value);
+            if (name === '') {
+                throw new Error("Error al completar el campo nombre");
+            }
+        } catch (error) {
+            error.message = "Error al completar el campo nombre";
+        } 
         await page.type('#person_flastname', reclamo.lastname); // Apellido 
         await page.select('#person_identifier_type', reclamo.docType); // Tipo de Documento (campo de selección)
         await page.type('#person_identifier', reclamo.docNumber); // Número de Documento
