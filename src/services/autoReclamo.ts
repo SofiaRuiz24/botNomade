@@ -4,7 +4,7 @@ import { config } from '~/config';
 import path from 'path';
 import { obtenerReclamo } from '~/controller/reclamoController';
 
-export const completarFormularioOnline = async (Reclamo: string ,localPath: string): Promise<void> => {
+export const completarFormularioOnline = async (Reclamo: Object ,localPath: string): Promise<void> => {
     let url = '';
     //TO DO
     //Desde el id del reclamo buscar en bd y traer el reclamo correspondiente.
