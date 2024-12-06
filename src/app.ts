@@ -6,11 +6,18 @@ import { config } from "../src/config";
 import { conectarDB } from "./db/mongoDB";
 import * as puppeteer from "puppeteer";
 import { completarFormularioOnline } from "./services/autoReclamo";
+import fs from 'fs';
+import path from 'path';
 
 const PORT = Number(config.port);
 
 const main = async () => {
     await conectarDB();
+
+    const logsDir = path.join(process.cwd(), 'logs');
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir);
+    }
 
     const { handleCtx, httpServer } = await createBot({
         flow: templates,

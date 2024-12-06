@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import logger from "~/logs/logger";
 
 export const conectarDB = async () => {
     try {
@@ -6,5 +7,6 @@ export const conectarDB = async () => {
         console.log("Conectado a MongoDB");
     } catch (error) {
         console.error("Error de conexión a MongoDB:", error);
+        logger.error("Error de conexión a MongoDB:", error);
     }
 };

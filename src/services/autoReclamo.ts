@@ -3,6 +3,7 @@ import { Reclamo } from '~/model/Reclamo';
 import { config } from '~/config';
 import path from 'path';
 import { obtenerReclamo } from '~/controller/reclamoController';
+import logger from '../logs/logger';
 
 export const completarFormularioOnline = async (Reclamo: string ,localPath: string): Promise<void> => {
     let url = '';
@@ -13,50 +14,62 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
     //Validacion de todos los campos
     if (!reclamo) {
         console.error("No se encontró el reclamo con el ID proporcionado.");
+        logger.error("No se encontró el reclamo con el ID proporcionado.");
         return;
     }
     if (!reclamo.type) {
         console.error("El reclamo no tiene un tipo definido.");
+        logger.error("El reclamo no tiene un tipo definido.");
         return;
     }
     if (!reclamo.name && reclamo.id != '7c476c35-5f8a-41ce-9930-da81a1a51bf3') {
         console.error("El reclamo no tiene un nombre definido.");
+        logger.error("El reclamo no tiene un nombre definido.");
         return;
     }
     if (!reclamo.lastname) {
         console.error("El reclamo no tiene un apellido definido.");
+        logger.error("El reclamo no tiene un apellido definido.");
         return;
     }
     if (!reclamo.docType) {
         console.error("El reclamo no tiene un tipo de documento definido.");
+        logger.error("El reclamo no tiene un tipo de documento definido.");
         return;
     }
     if (!reclamo.docNumber) {
         console.error("El reclamo no tiene un número de documento definido.");
+        logger.error("El reclamo no tiene un número de documento definido.");
         return;
     }
     if (!reclamo.phone) {
         console.error("El reclamo no tiene un número de teléfono definido.");
+        logger.error("El reclamo no tiene un número de teléfono definido.");
         return;
     }
     if (!reclamo.email) {
         console.error("El reclamo no tiene un correo electrónico definido.");
+        logger.error("El reclamo no tiene un correo electrónico definido.");
         return;
     }
     if (!reclamo.address) {
         console.error("El reclamo no tiene una dirección definida.");
+        logger.error("El reclamo no tiene una dirección definida.");
         return;
     }
     if (!reclamo.direcNum) {
         console.error("El reclamo no tiene un número de dirección definido.");
+        logger.error("El reclamo no tiene un número de dirección definido.");
         return;
     }
     if (!reclamo.descriptionRec) {
         console.error("El reclamo no tiene una descripción definida.");
+        logger.error("El reclamo no tiene una descripción definida.");
         return;
     }
     if (!reclamo.dateRec) {
         console.error("El reclamo no tiene una fecha definida.");
+        logger.error("El reclamo no tiene una fecha definida.");
         return;
     }
     console.log(reclamo.type);
@@ -108,17 +121,22 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
         while (!success && attempts < maxAttempts) {
             try {
                 console.log(`Intento ${attempts + 1} de ${maxAttempts} para acceder a la URL: ${url}`);
+                logger.info(`Intento ${attempts + 1} de ${maxAttempts} para acceder a la URL: ${url}`);
                 await page.goto(url, { waitUntil: 'networkidle2' });
                 success = true;
                 console.log("Formulario cargado exitosamente.");
+                logger.info("Formulario cargado exitosamente.");
             } catch (error) {
                 console.error(`Error al intentar cargar la URL en el intento ${attempts + 1}:`, error);
+                logger.error(`Error al intentar cargar la URL en el intento ${attempts + 1}:`, error);
                 attempts++;
                 if (attempts < maxAttempts) {
                     console.log("Reintentando en 30 segundos...");
+                    logger.info("Reintentando en 30 segundos...");
                     await new Promise(resolve => setTimeout(resolve, 30000));
                 } else {
                     console.error("No se pudo cargar la URL después de varios intentos.");
+                    logger.error("No se pudo cargar la URL después de varios intentos.");
                     throw new Error("Error al cargar la URL después de varios intentos.");
                 }
             }
@@ -157,10 +175,12 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
             }
         
             console.log('✅ Todos los campos fueron verificados correctamente');
+            logger.info('✅ Todos los campos fueron verificados correctamente');
             await page.click('input[value="Siguiente"]');
             
         } catch (error) {
             console.error('❌ Error en la verificación de campos:', error);
+            logger.error('❌ Error en la verificación de campos:', error);
             throw error;
         }
         //await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
@@ -185,6 +205,7 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
         }
        }catch(e){
            console.log("Error al subir el archivo", e);
+           logger.error("Error al subir el archivo", e);
         }
         await page.type('#claim_answers_attributes_2_input_date', reclamo.dateRec);
         await page.keyboard.press('Enter'); 
@@ -196,9 +217,11 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
         await new Promise(resolve => setTimeout(resolve, 10000));
         
         console.log("Formulario enviado con éxito");
+        logger.info("Formulario enviado con éxito");
 
     } catch (error) {
         console.error("Error al completar el formulario:", error);
+        logger.error("Error al completar el formulario:", error);
     } finally {
         await browser.close();
     }
@@ -234,10 +257,12 @@ async function verificarCampoFormulario(
             
             if (valorActual.trim() === valorEsperado.trim()) {
                 console.log(`✅ Campo ${nombreCampo} verificado correctamente: "${valorActual}"`);
+                logger.info(`✅ Campo ${nombreCampo} verificado correctamente: "${valorActual}"`);
                 return true;
             }
             
             console.log(`⚠️ Intento ${intentos + 1}: Valor actual "${valorActual}" no coincide con esperado "${valorEsperado}"`);
+            logger.warn(`⚠️ Intento ${intentos + 1}: Valor actual "${valorActual}" no coincide con esperado "${valorEsperado}"`);
             intentos++;
             
             if (intentos < maxIntentos) {
@@ -246,10 +271,12 @@ async function verificarCampoFormulario(
             
         } catch (error) {
             console.error(`❌ Error al verificar ${nombreCampo} (Intento ${intentos + 1}):`, error);
+            logger.error(`❌ Error al verificar ${nombreCampo} (Intento ${intentos + 1}):`, error);
             intentos++;
             
             if (intentos === maxIntentos) {
                 console.error(`🚫 Máximo de intentos alcanzado para ${nombreCampo}`);
+                logger.error(`🚫 Máximo de intentos alcanzado para ${nombreCampo}`);
                 return false;
             }
             
