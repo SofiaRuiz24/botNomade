@@ -146,7 +146,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             const resultado = await crearReclamo(reclamoData);  //Guardado en BD
             // TO DO
             //Esperar unos 3 segundos
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 10000));
             try {
                 await completarFormularioOnline(reclamoData.id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO
             } catch (error) {
