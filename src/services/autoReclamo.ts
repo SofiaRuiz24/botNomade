@@ -1,54 +1,98 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { Page } from 'puppeteer';
 import { Reclamo } from '~/model/Reclamo';
 import { config } from '~/config';
 import path from 'path';
+import { obtenerReclamo } from '~/controller/reclamoController';
 
-export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: string): Promise<void> => {
+export const completarFormularioOnline = async (Reclamo: Object ,localPath: string): Promise<void> => {
     let url = '';
+    //TO DO
+    //Desde el id del reclamo buscar en bd y traer el reclamo correspondiente.
+    const reclamo = await obtenerReclamo(Reclamo);
+    console.log(reclamo);
+    //Validacion de todos los campos
+    if (!reclamo) {
+        console.error("No se encontró el reclamo con el ID proporcionado.");
+        return;
+    }
+    if (!reclamo.type) {
+        console.error("El reclamo no tiene un tipo definido.");
+        return;
+    }
+    if (!reclamo.name && reclamo.id != '7c476c35-5f8a-41ce-9930-da81a1a51bf3') {
+        console.error("El reclamo no tiene un nombre definido.");
+        return;
+    }
+    if (!reclamo.lastname) {
+        console.error("El reclamo no tiene un apellido definido.");
+        return;
+    }
+    if (!reclamo.docType) {
+        console.error("El reclamo no tiene un tipo de documento definido.");
+        return;
+    }
+    if (!reclamo.docNumber) {
+        console.error("El reclamo no tiene un número de documento definido.");
+        return;
+    }
+    if (!reclamo.phone) {
+        console.error("El reclamo no tiene un número de teléfono definido.");
+        return;
+    }
+    if (!reclamo.email) {
+        console.error("El reclamo no tiene un correo electrónico definido.");
+        return;
+    }
+    if (!reclamo.address) {
+        console.error("El reclamo no tiene una dirección definida.");
+        return;
+    }
+    if (!reclamo.direcNum) {
+        console.error("El reclamo no tiene un número de dirección definido.");
+        return;
+    }
+    if (!reclamo.descriptionRec) {
+        console.error("El reclamo no tiene una descripción definida.");
+        return;
+    }
+    if (!reclamo.dateRec) {
+        console.error("El reclamo no tiene una fecha definida.");
+        return;
+    }
     console.log(reclamo.type);
+  
     switch (reclamo.type) {
-        case 'RECLAMO IDENTIFICADO: Poda de Árboles':
-        case 'RECLAMO IDENTIFICADO: Poda de Árboles.':
+        case 'Reclamo: Poda de arboles':
             url = config.URL_PODA;
             break;
-        case 'RECLAMO IDENTIFICADO: Alumbrado Público':
-        case 'RECLAMO IDENTIFICADO: Alumbrado Público.':
+        case 'Reclamo: Alumbrado publico':
             url = config.URL_ALUMBRADO
             break;
-        case 'RECLAMO IDENTIFICADO: Animales Sueltos':
-        case 'RECLAMO IDENTIFICADO: Animales Sueltos.':
+        case 'Reclamo: Animales Sueltos':
             url = config.URL_ANIMALES
             break;
-        case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas':
-        case 'RECLAMO IDENTIFICADO: Obras Públicas Inconclusas.':
+        case 'Reclamo: Obras publicas inconclusas':
             url = config.URL_OBRAS
             break;
-        case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado':
-        case 'RECLAMO IDENTIFICADO: Veredas en Mal Estado.':
+        case 'Reclamo: Veredas en mal estado':
             url = config.URL_VEREDAS
             break;
-        case 'RECLAMO IDENTIFICADO: Ruidos Molestos':
-        case 'RECLAMO IDENTIFICADO: Ruidos Molestos.':
+        case 'Reclamo: Ruidos Molestos':
             url = config.URL_RUIDOS
             break;
-        case 'RECLAMO IDENTIFICADO: Transporte Público':
-        case 'RECLAMO IDENTIFICADO: Transporte Público.':
+        case 'Reclamo: Transporte publico' :
             url = config.URL_TRANSPORTE
             break;
-        case 'RECLAMO IDENTIFICADO: Recolección de Residuos':
-        case 'RECLAMO IDENTIFICADO: Recolección de Residuos.':
+        case 'Reclamo: Recoleccion de residuos':
             url = config.URL_RECOLECCION
             break;
-        case 'RECLAMO IDENTIFICADO: Fuga de Agua':
-        case 'RECLAMO IDENTIFICADO: Fuga de Agua.':
+        case 'Reclamo: Problemas de agua':
             url = config.URL_AGUA
             break;
-        case 'RECLAMO IDENTIFICADO: Problemas de Gas':
-        case 'RECLAMO IDENTIFICADO: Problemas de Gas.':
+        case 'Reclamo: Fuga de gas':
             url = config.URL_GAS
             break;
-        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada':
-        case 'RECLAMO IDENTIFICADO: Ruta Deteriorada.':
+        case 'Reclamo: Rutas deteriorada':
             url = config.URL_RUTA
             break
     }
@@ -81,32 +125,54 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         }
 
         // Completar cada campo del formulario usando IDs secuenciales
-        await page.type('#person_name', reclamo.name);//Nombre
-        await page.type('#person_flastname', reclamo.lastname); // Apellido 
-        await page.select('#person_identifier_type', reclamo.docType); // Tipo de Documento (campo de selección)
-        await page.type('#person_identifier', reclamo.docNumber); // Número de Documento
-        await page.type('#person_phone', reclamo.phone); // Teléfono
-        await page.type('#person_email', reclamo.email); // Correo Electrónico
-
-        // Campos de dirección
-        await page.type('#address_street', reclamo.address); // Calle
-        await page.type('#address_number', reclamo.direcNum); // Número
-        await page.type('#address_floor', reclamo.piso ); // Piso/Casa (ajusta según el dato si está disponible)
-        await page.type('#address_apartment', reclamo.dpto); // Dpto
+        try {
+            const camposAVerificar = [
+                { selector: '#person_name', valor: reclamo.name, nombre: 'nombre' },
+                { selector: '#person_flastname', valor: reclamo.lastname, nombre: 'apellido' },
+                { selector: '#person_identifier_type', valor: reclamo.docType, nombre: 'tipo documento', esSelect: true },
+                { selector: '#person_identifier', valor: reclamo.docNumber, nombre: 'documento' },
+                { selector: '#person_phone', valor: reclamo.phone, nombre: 'teléfono' },
+                { selector: '#person_email', valor: reclamo.email, nombre: 'email' },
+                { selector: '#address_street', valor: reclamo.address, nombre: 'dirección' },
+                { selector: '#address_number', valor: reclamo.direcNum, nombre: 'número' },
+                { selector: '#address_floor', valor: reclamo.piso, nombre: 'piso' },
+                { selector: '#address_apartment', valor: reclamo.dpto, nombre: 'departamento' }
+            ];
+        
+            for (const campo of camposAVerificar) {
+                if (campo.esSelect) {
+                    await page.select(campo.selector, campo.valor);
+                } else {
+                    const verificado = await verificarCampoFormulario(
+                        page,
+                        campo.selector,
+                        campo.valor,
+                        campo.nombre
+                    );
+        
+                    if (!verificado) {
+                        throw new Error(`No se pudo verificar el campo ${campo.nombre}`);
+                    }
+                }
+            }
+        
+            console.log('✅ Todos los campos fueron verificados correctamente');
+            await page.click('input[value="Siguiente"]');
+            
+        } catch (error) {
+            console.error('❌ Error en la verificación de campos:', error);
+            throw error;
+        }
         //await page.type('#address_references', "Referencias para identificar la direccion especificada."); // Referencias
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        //await new Promise(resolve => setTimeout(resolve, 2000));
         // Hacer clic en el botón "Siguiente"
-        await page.click('input[value="Siguiente"]'); // Ajusta el selector si es necesario
+        //await page.click('input[value="Siguiente"]'); // Ajusta el selector si es necesario
         await page.waitForNavigation({ waitUntil: 'networkidle2' });
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         // Completar la segunda sección
         await page.type('#claim_answers_attributes_0_input_text', reclamo.descriptionRec); // Descripción del reclamo
-        //await page.type('#claim_answers_attributes_11_input_string', reclamo.dateRec.toISOString().split('T')[0]); // Fecha del reclamo en formato YYYY-MM-DD
-       
-        
         //Adjuntar un archivo si es necesario
-        
-        //const filePath = `../../assets/tmp/${reclamo.id}.jpeg`; // Reemplaza con la ruta real del archivo si tienes uno
+        // Reemplaza con la ruta real del archivo si tienes uno
        try{
         if (localPath  !== '' && localPath !== undefined && localPath !== 'base-ts-meta-memory' && localPath !== 'base-ts-meta-memory.d.ts' && localPath !== 'undefined' && localPath !== 'base_ts_meta_memory') {
             const filePath = path.resolve(localPath);
@@ -137,3 +203,58 @@ export const completarFormularioOnline = async (reclamo: Reclamo ,localPath: str
         await browser.close();
     }
 };
+
+async function verificarCampoFormulario(
+    page: Page, 
+    selector: string, 
+    valorEsperado: string, 
+    nombreCampo: string,
+    maxIntentos: number = 3
+): Promise<boolean> {
+    let intentos = 0;
+    while (intentos < maxIntentos) {
+        try {
+            // Esperar a que el elemento esté presente y sea visible
+            await page.waitForSelector(selector, { 
+                visible: true, 
+                timeout: 5000 
+            });
+            
+            // Limpiar el campo antes de escribir
+            await page.$eval(selector, (el) => (el as HTMLInputElement).value = '');
+            
+            // Escribir el valor con un pequeño delay entre caracteres
+            await page.type(selector, valorEsperado, { delay: 50 });
+            
+            // Esperar un momento para que el valor se establezca
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Obtener y verificar el valor actual
+            const valorActual = await page.$eval(selector, (el) => (el as HTMLInputElement).value);
+            
+            if (valorActual.trim() === valorEsperado.trim()) {
+                console.log(`✅ Campo ${nombreCampo} verificado correctamente: "${valorActual}"`);
+                return true;
+            }
+            
+            console.log(`⚠️ Intento ${intentos + 1}: Valor actual "${valorActual}" no coincide con esperado "${valorEsperado}"`);
+            intentos++;
+            
+            if (intentos < maxIntentos) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+        } catch (error) {
+            console.error(`❌ Error al verificar ${nombreCampo} (Intento ${intentos + 1}):`, error);
+            intentos++;
+            
+            if (intentos === maxIntentos) {
+                console.error(`🚫 Máximo de intentos alcanzado para ${nombreCampo}`);
+                return false;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+    return false;
+}

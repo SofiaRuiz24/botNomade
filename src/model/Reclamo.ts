@@ -21,6 +21,7 @@ export interface Reclamo {
         data: Buffer,
         contentType: string
     };
+    _id: Object;
 }
 
 const reclamoSchema = new mongoose.Schema({
@@ -43,7 +44,8 @@ const reclamoSchema = new mongoose.Schema({
     imagen: {
         data: Buffer,
         contentType: String
-    }
+    },
+    _id: { type: Object}
 });
 
 const ReclamoModel = mongoose.model<Reclamo>('Reclamo', reclamoSchema);

@@ -12,7 +12,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.endFlow('La solicitud ha sido cancelado. Puede realizar un reclamo en cualquier momento.')
             } else if (ctx.body === 'Sí, quiero.') {
                 const tipoReclamo = ctxFn.state.get("type").split(": ")[1];
-                return ctxFn.flowDynamic(`Perfecto, voy a proceder a hacerte algunas preguntas sobre el reclamo: ${tipoReclamo}.`)
+                return ctxFn.flowDynamic(`Perfecto, voy a proceder a hacerte algunas preguntas sobre el reclamo: ${tipoReclamo}`)
             } else {
                 return ctxFn.fallBack('No entiendo tu respuesta.')
             }
@@ -140,12 +140,16 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 descriptionRec: ctxFn.state.get("descriptionRec"),
                 dateRec: ctxFn.state.get("dateRec"),
                 estado: 'Pendiente',
-                usuario: ctx.from // Extrae el usuario o asigna el identificador adecuado
+                usuario: ctx.from, // Extrae el usuario o asigna el identificador adecuado
+                _id: null
             };
 
-            const resultado = await crearReclamo(reclamoData);  
+            const resultado = await crearReclamo(reclamoData);  //Guardado en BD
+            // TO DO
+            //Esperar unos 3 segundos
+            await new Promise(resolve => setTimeout(resolve, 3000));
             try {
-                await completarFormularioOnline(reclamoData , '');
+                await completarFormularioOnline(resultado._id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO
             } catch (error) {
                 console.error("Error al completar el formulario:", error);
                 console.log(reclamoData);

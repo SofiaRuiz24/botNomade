@@ -27,10 +27,21 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
                 console.error("Error al eliminar archivo temporal:", err)
             );
         }
-
         return resultado;
     } catch (error) {
         console.error("Error al crear el reclamo:", error);
+        return null;
+    }
+};
+
+export const obtenerReclamo = async (id: Object): Promise<Reclamo | null> => {
+    try {
+        //buscar por campo nombre
+        const reclamo = await ReclamoModel.findOne({ id }); // Encuentra el reclamo por su id (campo único)
+        //const reclamo = await ReclamoModel.findById(id);
+        return reclamo;
+    } catch (error) {
+        console.error("Error al obtener el reclamo:", error);
         return null;
     }
 };
