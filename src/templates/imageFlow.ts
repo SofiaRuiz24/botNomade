@@ -29,11 +29,17 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
         
         try {
             ctxFn.flowDynamic('Por favor aguarde un momento. Estamos procesando su solicitud...');
-            // Primero completamos el formulario online
-            await completarFormularioOnline(reclamoData, localPath);
             
-            // Después guardamos en MongoDB
-            const resultado = await crearReclamo(reclamoData, localPath);
+             // Después guardamos en MongoDB
+             const resultado = await crearReclamo(reclamoData, localPath);
+             await new Promise(resolve => setTimeout(resolve, 10000));
+             try {
+                 await completarFormularioOnline(reclamoData.id , ''); 
+             } catch (error) {
+                 console.error("Error al completar el formulario:", error);
+                 console.log(reclamoData);
+             }
+
 
             if (resultado) {
                 return ctxFn.flowDynamic('¡Gracias por tu tiempo! Hemos registrado tu reclamo con éxito, y pronto será procesado por nuestro equipo municipal. En breve recibirás un correo de confirmación con los detalles de tu solicitud. Cualquier duda, aquí estamos para ayudarte.');

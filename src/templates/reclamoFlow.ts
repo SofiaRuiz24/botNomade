@@ -145,8 +145,8 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             };
 
             const resultado = await crearReclamo(reclamoData);  //Guardado en BD
-            //Como obtengo el id del reclamo creado en la BD?
-             
+            // TO DO
+            //Esperar unos 3 segundos
             await new Promise(resolve => setTimeout(resolve, 3000));
             try {
                 await completarFormularioOnline(resultado._id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO

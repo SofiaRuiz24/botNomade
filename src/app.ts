@@ -5,6 +5,7 @@ import templates from "../src/templates";
 import { config } from "../src/config";
 import { conectarDB } from "./db/mongoDB";
 import * as puppeteer from "puppeteer";
+import { completarFormularioOnline } from "./services/autoReclamo";
 
 const PORT = Number(config.port);
 
@@ -17,5 +18,7 @@ const main = async () => {
         database: new Database(),
     })
     httpServer(PORT);
+    //const prueba = '7c476c35-5f8a-41ce-9930-da81a1a51bf3';
+    //completarFormularioOnline(prueba, '');
 }
 main()
