@@ -5,6 +5,7 @@ import { config } from '../config';
 import path from 'path';
 import fs, { stat } from 'fs';
 import { reclamoFlow } from './reclamoFlow';
+import logger from '../logs/logger';
 
 const pathPrompts = path.join(
     process.cwd(),
@@ -20,12 +21,29 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
             const history = await sheetsService.getUserConv(ctx.from);
             history.push({role: 'user', content: ctx.body});
             console.log('Historial:', history);
+            logger.info('Historial:', history);
             try {
                 const AI = new iaService(config.apiKey);
-                const response = await AI.chat(prompt, history);
+                let response = await AI.chat(prompt, history);
                 await sheetsService.addConvertoUser(ctx.from, [{role: 'user', content: ctx.body}, {role: 'assistant', content: response}]);
                if(response.includes('RECLAMO IDENTIFICADO')){
-                console.log(response);
+                    console.log(response);
+                    logger.info(response);
+                    //lo que se guardará en type, debe incluir el reclamo, pero lo decidimos hardcodeado 
+                    response = response.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    response.includes('arboles') ? response = 'Reclamo: Poda de arboles' : response;
+                    response.includes('alumbrado') ? response = 'Reclamo: Alumbrado publico' : response;
+                    response.includes('obras') ? response = 'Reclamo: Obras publicas inconclusas' : response;
+                    response.includes('veredas') ? response = 'Reclamo: Veredas en mal estado' : response;
+                    response.includes('ruidos') ? response = 'Reclamo: Ruidos Molestos' : response;
+                    response.includes('transporte') ? response = 'Reclamo: Transporte publico' : response;
+                    response.includes('residuos') ? response = 'Reclamo: Recoleccion de residuos' : response;
+                    response.includes('agua') ? response = 'Reclamo: Problemas de agua' : response;
+                    response.includes('gas') ? response = 'Reclamo: Fuga de gas' : response;
+                    response.includes('ruta') ? response = 'Reclamo: Rutas deteriorada' : response;
+                    response.includes('animales') ? response = 'Reclamo: Animales Sueltos' : response;
+                    console.log('Nuevo ', response);
+                    logger.info('Nuevo ', response);
                     await ctxFn.state.update({type: response});
                     return ctxFn.gotoFlow(reclamoFlow);
                }else{
@@ -33,6 +51,7 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                }
             } catch (error) {
                 console.log('Error en llamada a OpenAI', error);
+                logger.error('Error en llamada a OpenAI', error);
                 return ctxFn.endFlow('Error, Por favor intenta de nuevo');
             }
             }
