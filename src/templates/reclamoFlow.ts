@@ -140,15 +140,16 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 descriptionRec: ctxFn.state.get("descriptionRec"),
                 dateRec: ctxFn.state.get("dateRec"),
                 estado: 'Pendiente',
-                usuario: ctx.from // Extrae el usuario o asigna el identificador adecuado
+                usuario: ctx.from, // Extrae el usuario o asigna el identificador adecuado
+                _id: null
             };
 
             const resultado = await crearReclamo(reclamoData);  //Guardado en BD
             // TO DO
             //Esperar unos 3 segundos
-            await new Promise(resolve => setTimeout(resolve, 10000));
+            await new Promise(resolve => setTimeout(resolve, 3000));
             try {
-                await completarFormularioOnline(reclamoData.id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO
+                await completarFormularioOnline(resultado._id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO
             } catch (error) {
                 console.error("Error al completar el formulario:", error);
                 console.log(reclamoData);
