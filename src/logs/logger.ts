@@ -12,8 +12,28 @@ const customFormat = winston.format.combine(
     })
 );
 
+const levels = {
+    error: 0,
+    warn: 1,
+    info: 2,
+    http: 3,
+    debug: 4,
+};
+
+const colors = {
+    error: 'red',
+    warn: 'yellow',
+    info: 'green',
+    http: 'magenta',
+    debug: 'blue',
+};
+
+// Agregar colores a winston
+winston.addColors(colors);
+
 // Crear el logger
 const logger = winston.createLogger({
+    levels: levels,
     level: 'info',
     format: customFormat,
     transports: [
