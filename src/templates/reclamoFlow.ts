@@ -62,15 +62,17 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     )
     .addAnswer('Dirección del solicitante, ingrese el nombre de la calle:', { capture: true },
         async (ctx, ctxFn) => {
-            const direccionRegex = /^[a-zA-Z0-9\s]{5,}$/;
+            const direccionRegex = /^[a-zA-Z0-9\s]{3,}$/;
             if (!direccionRegex.test(ctx.body)) {
                 return ctxFn.fallBack('La dirección ingresada no es válida. Por favor, ingresala nuevamente.')
             }
-            await ctxFn.state.update({ address: ctx.body })
+            const address = ctx.body.charAt(0).toUpperCase() + ctx.body.slice(1);
+            await ctxFn.state.update({ address: address })
         }
     )
     .addAnswer('Ingrese el número de la dirección:', { capture: true },
         async (ctx, ctxFn) => {
+            const numberRegex = /^[0-9]{1,6}$/;
             await ctxFn.state.update({ direcNum: ctx.body })
         }
     )
@@ -79,7 +81,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ piso: ctx.body })
         }
     )
-    .addAnswer('Ingrese el departamento:', { capture: true },
+    .addAnswer('Ingrese el departamento/distrito:', { capture: true },
         async (ctx, ctxFn) => {
             await ctxFn.state.update({ dpto: ctx.body })
         }
@@ -91,7 +93,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     .addAnswer('Ingrese la fecha (dd/mm/aaaa):', { capture: true },
         async (ctx, ctxFn) => {
             // Acepta fechas con formato dd/mm/aaaa, dd-mm-aaaa, dd.mm.aaaa o dd mm aaaa
-            const dateRegex = /^\d{1,2}[\s./-]\d{1,2}[\s./-]\d{4}$/;
+            const dateRegex = /^\d{2}[\s./-]\d{2}[\s./-]\d{4}$/;
             if (!dateRegex.test(ctx.body)) {
                 return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos o espacios.')
             }
@@ -149,10 +151,11 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             //Esperar unos 3 segundos
             await new Promise(resolve => setTimeout(resolve, 3000));
             try {
-                await completarFormularioOnline(resultado._id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO
+                await completarFormularioOnline(resultado.id , ''); //Relleno del formulario (enviarle solo el id del reclamo) TO DO
             } catch (error) {
                 console.error("Error al completar el formulario:", error);
                 console.log(reclamoData);
+
             }
 
             if (resultado) {

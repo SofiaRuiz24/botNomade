@@ -40,7 +40,8 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
 export const obtenerReclamo = async (id: Object): Promise<Reclamo | null> => {
     try {
         //buscar por campo nombre
-        const reclamo = await ReclamoModel.findOne({ id }); // Encuentra el reclamo por su id (campo único)
+        const reclamo = await ReclamoModel.findOne({ id });
+        // Encuentra el reclamo por su id (campo único)
         //const reclamo = await ReclamoModel.findById(id);
         return reclamo;
     } catch (error) {

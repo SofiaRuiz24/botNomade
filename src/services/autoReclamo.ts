@@ -5,7 +5,7 @@ import path from 'path';
 import { obtenerReclamo } from '~/controller/reclamoController';
 import logger from '../logs/logger';
 
-export const completarFormularioOnline = async (Reclamo: Object ,localPath: string): Promise<void> => {
+export const completarFormularioOnline = async (Reclamo: string ,localPath: string): Promise<void> => {
     let url = '';
     //TO DO
     //Desde el id del reclamo buscar en bd y traer el reclamo correspondiente.
@@ -120,12 +120,12 @@ export const completarFormularioOnline = async (Reclamo: Object ,localPath: stri
 
         while (!success && attempts < maxAttempts) {
             try {
-                console.log(`Intento ${attempts + 1} de ${maxAttempts} para acceder a la URL: ${url}`);
+                //console.log(`Intento ${attempts + 1} de ${maxAttempts} para acceder a la URL: ${url}`);
                 logger.info(`Intento ${attempts + 1} de ${maxAttempts} para acceder a la URL: ${url}`);
                 await page.goto(url, { waitUntil: 'networkidle2' });
                 success = true;
-                console.log("Formulario cargado exitosamente.");
-                logger.info("Formulario cargado exitosamente.");
+                //console.log("Formulario cargado exitosamente.");
+                logger.info("URL cargado exitosamente.");
             } catch (error) {
                 console.error(`Error al intentar cargar la URL en el intento ${attempts + 1}:`, error);
                 logger.error(`Error al intentar cargar la URL en el intento ${attempts + 1}:`, error);
@@ -172,9 +172,10 @@ export const completarFormularioOnline = async (Reclamo: Object ,localPath: stri
                         throw new Error(`No se pudo verificar el campo ${campo.nombre}`);
                     }
                 }
+                //logger.info('Campo',campo.selector);
             }
         
-            console.log('✅ Todos los campos fueron verificados correctamente');
+            //console.log('✅ Todos los campos fueron verificados correctamente');
             logger.info('✅ Todos los campos fueron verificados correctamente');
             await page.click('input[value="Siguiente"]');
             
@@ -216,7 +217,7 @@ export const completarFormularioOnline = async (Reclamo: Object ,localPath: stri
         // Esperar a que el formulario se envíe por completo 10 segundos
         await new Promise(resolve => setTimeout(resolve, 10000));
         
-        console.log("Formulario enviado con éxito");
+        //console.log("Formulario enviado con éxito");
         logger.info("Formulario enviado con éxito");
 
     } catch (error) {
@@ -244,7 +245,7 @@ async function verificarCampoFormulario(
             });
             
             // Limpiar el campo antes de escribir
-            await page.$eval(selector, (el) => (el as HTMLInputElement).value = '');
+            //await page.$eval(selector, (el) => (el as HTMLInputElement).value = '');
             
             // Escribir el valor con un pequeño delay entre caracteres
             await page.type(selector, valorEsperado, { delay: 50 });
@@ -256,12 +257,13 @@ async function verificarCampoFormulario(
             const valorActual = await page.$eval(selector, (el) => (el as HTMLInputElement).value);
             
             if (valorActual.trim() === valorEsperado.trim()) {
-                console.log(`✅ Campo ${nombreCampo} verificado correctamente: "${valorActual}"`);
+                //console.log(`✅ Campo ${nombreCampo} verificado correctamente: "${valorActual}"`);
                 logger.info(`✅ Campo ${nombreCampo} verificado correctamente: "${valorActual}"`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 return true;
             }
             
-            console.log(`⚠️ Intento ${intentos + 1}: Valor actual "${valorActual}" no coincide con esperado "${valorEsperado}"`);
+            //console.log(`⚠️ Intento ${intentos + 1}: Valor actual "${valorActual}" no coincide con esperado "${valorEsperado}"`);
             logger.warn(`⚠️ Intento ${intentos + 1}: Valor actual "${valorActual}" no coincide con esperado "${valorEsperado}"`);
             intentos++;
             
@@ -270,12 +272,12 @@ async function verificarCampoFormulario(
             }
             
         } catch (error) {
-            console.error(`❌ Error al verificar ${nombreCampo} (Intento ${intentos + 1}):`, error);
+            //console.error(`❌ Error al verificar ${nombreCampo} (Intento ${intentos + 1}):`, error);
             logger.error(`❌ Error al verificar ${nombreCampo} (Intento ${intentos + 1}):`, error);
             intentos++;
             
             if (intentos === maxIntentos) {
-                console.error(`🚫 Máximo de intentos alcanzado para ${nombreCampo}`);
+                //console.error(`🚫 Máximo de intentos alcanzado para ${nombreCampo}`);
                 logger.error(`🚫 Máximo de intentos alcanzado para ${nombreCampo}`);
                 return false;
             }

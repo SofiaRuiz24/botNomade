@@ -44,9 +44,8 @@ const reclamoSchema = new mongoose.Schema({
     imagen: {
         data: Buffer,
         contentType: String
-    },
-    _id: { type: Object}
-});
+    }
+},{timestamps: true});// Agrega automáticamente createdAt y updatedAt
 
 const ReclamoModel = mongoose.model<Reclamo>('Reclamo', reclamoSchema);
 export default ReclamoModel;
