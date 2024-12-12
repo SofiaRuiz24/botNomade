@@ -8,6 +8,7 @@ import * as puppeteer from "puppeteer";
 import { completarFormularioOnline } from "./services/autoReclamo";
 import fs from 'fs';
 import path from 'path';
+import { obtenerReclamo } from "./controller/reclamoController";
 
 const PORT = Number(config.port);
 
