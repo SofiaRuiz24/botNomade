@@ -1,11 +1,11 @@
 import {addKeyword, EVENTS } from '@builderbot/bot';
 import iaService from '../services/aiServices';
-import sheetsService from '~/services/sheetsService';
 import { config } from '../config';
 import path from 'path';
 import fs, { stat } from 'fs';
 import { reclamoFlow } from './reclamoFlow';
 import logger from '../logs/logger';
+import { obtenerHistorialUsuario, agregarConversacion } from '../controller/usuarioController';
 
 const pathPrompts = path.join(
     process.cwd(),
@@ -18,14 +18,18 @@ const prompt = fs.readFileSync(pathPrompts, 'utf-8');
 export const faqFlow = addKeyword(EVENTS.ACTION)
     .addAction({capture: true},
         async(ctx, ctxFn) => {
-            const history = await sheetsService.getUserConv(ctx.from);
+            const history = await obtenerHistorialUsuario(ctx.from);
             history.push({role: 'user', content: ctx.body});
             console.log('Historial:', history);
             logger.info('Historial:', history);
             try {
                 const AI = new iaService(config.apiKey);
                 let response = await AI.chat(prompt, history);
-                await sheetsService.addConvertoUser(ctx.from, [{role: 'user', content: ctx.body}, {role: 'assistant', content: response}]);
+                await agregarConversacion(ctx.from, {
+                    role: 'user',
+                    content: ctx.body,
+                    date: new Date()
+                });
                if(response.includes('RECLAMO IDENTIFICADO')){
                     console.log(response);
                     logger.info(response);

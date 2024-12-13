@@ -1,20 +1,74 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 
-export interface Usuario {
+// Interfaz para el historial de conversaciones
+interface Conversation {
+    role: string;
+    content: string;
+    date: Date;
+}
+
+// Interfaz para los reclamos
+interface Reclamo {
+    tipo: string;
+    descripcion: string;
+    fecha: Date;
+    estado: string;
+}
+
+// Interfaz principal del Usuario
+export interface Usuario extends Document {
     name: string;
     mail: string;
     phone: string;
-    history:[{ role: string, content: string , date: Date}];
-    reclamos:[{reclamoId: string}];
+    history: Conversation[];
+    reclamos: Reclamo[];
 }
 
-const usuarioSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    mail: { type: String, required: true },
-    phone: { type: String, required: true },
-    history: [{ role: String, content: String , date: Date}],
-    reclamos: [{reclamoId: String}]
-},{timestamps: true});
-const UsuarioModel = mongoose.model<Usuario>('Usuario', usuarioSchema);
+// Agregar esta interfaz
+export interface UsuarioInput {
+    name: string;
+    phone: string;
+    mail: string;
+    history: any[];
+    reclamos: any[];
+}
 
-export default UsuarioModel;
+// Schema de MongoDB para Usuario
+const UsuarioSchema = new Schema({
+    name: { 
+        type: String, 
+        required: true 
+    },
+    phone: { 
+        type: String, 
+        required: true, 
+        unique: true 
+    },
+    mail: { 
+        type: String, 
+        required: true 
+    },
+    history: [{
+        role: String,
+        content: String,
+        date: { 
+            type: Date, 
+            default: Date.now 
+        }
+    }],
+    reclamos: [{
+        tipo: String,
+        descripcion: String,
+        fecha: { 
+            type: Date, 
+            default: Date.now 
+        },
+        estado: { 
+            type: String, 
+            default: 'pendiente' 
+        }
+    }]
+});
+
+// Crear y exportar el modelo
+export default mongoose.model<Usuario>('Usuario', UsuarioSchema);

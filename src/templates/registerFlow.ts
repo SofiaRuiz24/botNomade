@@ -1,5 +1,5 @@
 import { addKeyword, EVENTS } from "@builderbot/bot";
-import sheetsService from "~/services/sheetsService";
+import { crearOActualizarUsuario } from "../controller/usuarioController";
 import { faqFlow } from "./faqFlow";
 
 const registerFlow = addKeyword(EVENTS.ACTION)
@@ -26,7 +26,16 @@ const registerFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.fallBack('El correo electrónico ingresado no es válido. Por favor, ingresalo nuevamente.')
             }
             const state = ctxFn.state.getMyState()
-            await sheetsService.createUser(ctx.from, state.name, ctx.body)
+            
+            // Crear usuario en MongoDB
+            await crearOActualizarUsuario({
+                name: state.name,
+                phone: ctx.from,
+                mail: ctx.body,
+                history: [],
+                reclamos: []
+            });
+            
             await ctxFn.flowDynamic('¡Gracias por registrarte! Tus datos han sido guardados con éxito. ¿Ahora sí, en qué puedo ayudarte?')
             return ctxFn.gotoFlow(faqFlow)
     })
