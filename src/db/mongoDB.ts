@@ -16,7 +16,7 @@ export const conectarDB = async () => {
         if (!collectionNames.includes('reclamos')) {
             logger.warn("La colección 'reclamos' no existe");
         }
-
+//hola a todos
     } catch (error) {
         console.error("Error de conexión a MongoDB:", error);
         logger.error("Error de conexión a MongoDB:", error);
