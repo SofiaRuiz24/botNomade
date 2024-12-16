@@ -8,9 +8,7 @@
     "lint": "eslint . --no-ignore",
     "dev": "npm run lint && nodemon ./src/app.ts",
     "build": "npx rollup -c",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "jest --watchAll=false --coverage --CI=true"
   },
   "keywords": [],
   "dependencies": {
