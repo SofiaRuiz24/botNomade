@@ -18,18 +18,16 @@ const prompt = fs.readFileSync(pathPrompts, 'utf-8');
 export const faqFlow = addKeyword(EVENTS.ACTION)
     .addAction({capture: true},
         async(ctx, ctxFn) => {
-            const history = await obtenerHistorialUsuario(ctx.from);
-            history.push({role: 'user', content: ctx.body});
-            console.log('Historial:', history);
-            logger.info('Historial:', history);
             try {
                 const AI = new iaService(config.apiKey);
-                let response = await AI.chat(prompt, history);
-                await agregarConversacion(ctx.from, {
+                const history = await agregarConversacion(ctx.from, {
                     role: 'user',
                     content: ctx.body,
                     date: new Date()
                 });
+                logger.info('Historial:', history);
+                let response = await AI.chat(prompt, history);
+
                if(response.includes('RECLAMO IDENTIFICADO')){
                     console.log(response);
                     logger.info(response);

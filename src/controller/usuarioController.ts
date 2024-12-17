@@ -1,3 +1,4 @@
+import ReclamoModel from '~/model/Reclamo';
 import UsuarioModel, { Usuario, UsuarioInput } from '../model/Usuario';
 
 // Función para crear o actualizar un usuario
@@ -34,16 +35,16 @@ export const existeUsuario = async (phone: string): Promise<boolean> => {
         return false;
     }
 };
-
+//TO DO : SIMPLIFICAR ESTAS DOS FUNCIONES EN UNA SOLA.
 // Función para obtener un usuario por su número de teléfono
 export const obtenerUsuario = async (phone: string): Promise<Usuario | null> => {
     try {
         return await UsuarioModel.findOne({ phone });
     } catch (error) {
-        console.error('Error al obtener usuario:', error);
+        console.error('Error al obtener usuario: ', error);
         return null;
     }
-};
+};  
 
 // Función para obtener el historial de un usuario
 export const obtenerHistorialUsuario = async (phone: string): Promise<any[]> => {
@@ -67,22 +68,22 @@ export const agregarConversacion = async (
         content: string, 
         date: Date 
     }
-): Promise<boolean> => {
+): Promise<any[]> => {
     try {
         const usuario = await UsuarioModel.findOne({ phone });
         if (usuario) {
             usuario.history.push(conversation);
             await usuario.save();
-            return true;
+            return usuario.history;
         }
-        return false;
+        return [];
     } catch (error) {
         console.error('Error al agregar conversación:', error);
-        return false;
+        return [];
     }
 };
 
-// Función para agregar un reclamo
+// Función para agregar reclamo
 export const agregarReclamo = async (
     phone: string, 
     reclamo: {
@@ -105,13 +106,15 @@ export const agregarReclamo = async (
         return false;
     }
 };
-
+//HACER LO MISMO QUE EN LA FUNCION ANTERIOR
 // Función para obtener los reclamos de un usuario
 export const obtenerReclamos = async (phone: string): Promise<any[]> => {
     try {
         const usuario = await UsuarioModel.findOne({ phone });
-        if (usuario) {
-            return usuario.reclamos;
+        if (usuario && usuario.reclamos) {
+            const reclamos = await Promise.all(usuario.reclamos.map(async (reclamo) => ReclamoModel.findOne({ id: reclamo })));
+            // Filtrar cualquier resultado nulo o indefinido
+            return reclamos.filter((reclamo) => reclamo !== null);   
         }
         return [];
     } catch (error) {
@@ -119,3 +122,7 @@ export const obtenerReclamos = async (phone: string): Promise<any[]> => {
         return [];
     }
 };
+function each(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}
+

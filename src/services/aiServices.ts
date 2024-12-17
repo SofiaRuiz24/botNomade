@@ -22,7 +22,6 @@ class aiServices {
                     ...messages,
                 ]
             });
-
             const answer = completion.choices[0].message?.content || 'No response';
             return answer;
         }catch(err){

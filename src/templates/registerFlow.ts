@@ -28,16 +28,19 @@ const registerFlow = addKeyword(EVENTS.ACTION)
             const state = ctxFn.state.getMyState()
             
             // Crear usuario en MongoDB
-            await crearOActualizarUsuario({
+            const response = await crearOActualizarUsuario({
                 name: state.name,
                 phone: ctx.from,
                 mail: ctx.body,
                 history: [],
                 reclamos: []
             });
-            
-            await ctxFn.flowDynamic('¡Gracias por registrarte! Tus datos han sido guardados con éxito. ¿Ahora sí, en qué puedo ayudarte?')
-            return ctxFn.gotoFlow(faqFlow)
+            if(response){
+                await ctxFn.flowDynamic('¡Gracias por registrarte! Tus datos han sido guardados con éxito. ¿Ahora sí, en qué puedo ayudarte?')
+                return ctxFn.gotoFlow(faqFlow)
+            }else{
+                return ctxFn.fallBack('Hubo un problema al guardar tus datos. Por favor, intenta nuevamente.')
+            }
     })
 
     export { registerFlow };
