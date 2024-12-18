@@ -51,44 +51,40 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             await ctxFn.state.update({ phone: ctx.body })
         }
     )
-    .addAnswer('Correo electrónico:', { capture: true },
+    .addAnswer('Por favor, ingresa tu correo electrónico:', { capture: true },
         async (ctx, ctxFn) => {
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(ctx.body)) {
-                return ctxFn.fallBack('El correo electrónico ingresado no es válido. Por favor, ingresalo nuevamente.');
+                return ctxFn.fallBack('El correo electrónico ingresado no es válido. Por favor, ingrésalo nuevamente.');
             }
             await ctxFn.state.update({ email: ctx.body });
         }
     )
-    .addAnswer('Por favor, confirme su correo electrónico:', { capture: true },
-        async (ctx, ctxFn) => {
-            const email = ctxFn.state.get("email");
-            return ctxFn.flowDynamic([
-                {
-                    body: `El correo ingresado fue: ${email}. ¿Es correcto?`,
-                    buttons: [
-                        { body: 'Sí, es correcto.' },
-                        { body: 'No, quiero cambiarlo.' }
-                    ]
-                }
-            ]);
-        }
-    )
+    .addAnswer('Por favor, confirma tu correo electrónico:', { capture: true }, async (ctx, ctxFn) => {
+        const email = ctxFn.state.get("email");
+        return ctxFn.flowDynamic([
+            {
+                body: `El correo ingresado fue: ${email}. ¿Es correcto?`,
+                buttons: [
+                    { body: 'Sí, está bien.' },
+                    { body: 'No, está mal.' }
+                ]
+            }
+        ]);
+    })
     .addAnswer(
-        null, // Respuesta dinámica
+        null, // Respuesta dinámica según la confirmación
         { capture: true },
         async (ctx, ctxFn) => {
-            if (ctx.body === 'No, quiero cambiarlo.') {
-                // Reinicia el flujo para volver a pedir el correo
+            if (ctx.body === 'No, está mal.') {
                 return ctxFn.flowDynamic('Por favor, ingresa tu correo electrónico nuevamente:')
-                    .then(() => ctxFn.gotoFlow(reclamoFlow)); // Redirige al flujo inicial
+                    .then(() => ctxFn.gotoFlow(reclamoFlow)); // Redirige al flujo inicial para ingresar un nuevo correo
             }
-            if (ctx.body === 'Sí, es correcto.') {
-                // Continúa con el siguiente paso del flujo
+            if (ctx.body === 'Sí, está bien.') {
                 return ctxFn.flowDynamic('Gracias, tu correo ha sido confirmado.');
             }
         }
-    )
+    )  
     .addAnswer('Dirección del solicitante, ingrese el nombre de la calle:', { capture: true },
         async (ctx, ctxFn) => {
             const direccionRegex = /^[a-zA-Z0-9\s]{3,}$/;
