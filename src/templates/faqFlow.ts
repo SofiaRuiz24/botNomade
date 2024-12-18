@@ -5,7 +5,7 @@ import path from 'path';
 import fs, { stat } from 'fs';
 import { reclamoFlow } from './reclamoFlow';
 import logger from '../logs/logger';
-import { obtenerHistorialUsuario, agregarConversacion } from '../controller/usuarioController';
+import {agregarConversacion, obtenerConversacion, limpiarHistorial } from '../controller/usuarioController';
 
 const pathPrompts = path.join(
     process.cwd(),
@@ -25,11 +25,14 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                     content: ctx.body,
                     date: new Date()
                 });
-                logger.info('Historial:', history);
-                let response = await AI.chat(prompt, history);
 
+                const userHistory = await obtenerConversacion(ctx.from);
+                logger.info('Historial:', userHistory);
+                let response = await AI.chat(prompt, userHistory);
+                
+                
                if(response.includes('RECLAMO IDENTIFICADO')){
-                    console.log(response);
+                    //console.log(response);
                     logger.info(response);
                     //lo que se guardará en type, debe incluir el reclamo, pero lo decidimos hardcodeado 
                     response = response.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -44,15 +47,17 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                     response.includes('gas') ? response = 'Reclamo: Fuga de gas' : response;
                     response.includes('ruta') ? response = 'Reclamo: Rutas deteriorada' : response;
                     response.includes('animales') ? response = 'Reclamo: Animales Sueltos' : response;
-                    console.log('Nuevo ', response);
+                    //console.log('Nuevo ', response);
                     logger.info('Nuevo ', response);
                     await ctxFn.state.update({type: response});
                     return ctxFn.gotoFlow(reclamoFlow);
                }else{
                     return ctxFn.fallBack(response);
                }
+
+               await limpiarHistorial(ctx.from);
             } catch (error) {
-                console.log('Error en llamada a OpenAI', error);
+                //console.log('Error en llamada a OpenAI', error);
                 logger.error('Error en llamada a OpenAI', error);
                 return ctxFn.endFlow('Error, Por favor intenta de nuevo');
             }

@@ -20,7 +20,6 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
         });
 
         const resultado = await nuevoReclamo.save();
-        console.log("Reclamo creado con éxito:", resultado);
         logger.info("Reclamo creado con éxito:", resultado);
 
         // Si se guardó la imagen en el sistema de archivos, podemos borrarla
@@ -31,7 +30,6 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
         }
         return resultado;
     } catch (error) {
-        console.error("Error al crear el reclamo:", error);
         logger.error("Error al crear el reclamo:", error);
         return null;
     }
@@ -45,7 +43,6 @@ export const obtenerReclamo = async (id: Object): Promise<Reclamo | null> => {
         //const reclamo = await ReclamoModel.findById(id);
         return reclamo;
     } catch (error) {
-        console.error("Error al obtener el reclamo:", error);
         logger.error("Error al obtener el reclamo:", error);
         return null;
     }

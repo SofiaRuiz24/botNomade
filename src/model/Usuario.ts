@@ -9,6 +9,7 @@ interface Conversation {
 
 // Interfaz para los reclamos
 interface Reclamo {
+    _id: string;
     tipo: string;
     descripcion: string;
     fecha: Date;

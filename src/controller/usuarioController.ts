@@ -87,6 +87,7 @@ export const agregarConversacion = async (
 export const agregarReclamo = async (
     phone: string, 
     reclamo: {
+        _id: string;
         tipo: string,
         descripcion: string,
         fecha: Date,
@@ -106,13 +107,62 @@ export const agregarReclamo = async (
         return false;
     }
 };
-//HACER LO MISMO QUE EN LA FUNCION ANTERIOR
-// Función para obtener los reclamos de un usuario
+//Función para limpiar historial
+export const limpiarHistorial = async (phone: string): Promise<boolean> => {
+    try {
+        const usuario = await UsuarioModel.findOne({ phone });
+        if (usuario) {
+            usuario.history = [];
+            await usuario.save();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error al limpiar historial:', error);
+        return false;
+    }
+};
+
+export const obtenerConversacion = async (phone: string): Promise<any[]> => {
+    try {
+        const usuario = await UsuarioModel.findOne({ phone });
+        if (!usuario || !usuario.history) {
+            return [];
+        }
+
+        // Get last 3 conversations and reverse order
+        const mensajesValidos = usuario.history
+            .filter(msg => msg && msg.content && typeof msg.content === 'string')
+            .slice(-3)
+            .reverse();
+        // Format conversations for OpenAI
+        const conversacionesFormateadas = [];
+        for (let i = 0; i < mensajesValidos.length; i += 2) {
+            const mensajeUsuario = mensajesValidos[i];
+            const mensajeAsistente = mensajesValidos[i + 1];
+
+            if (mensajeUsuario?.content && mensajeAsistente?.content) {
+                conversacionesFormateadas.push(
+                    { role: 'user', content: String(mensajeUsuario.content) },
+                    { role: 'assistant', content: String(mensajeAsistente.content) }
+                );
+            }
+        }
+
+        return conversacionesFormateadas;
+    } catch (error) {
+        console.error('Error al obtener la conversación del usuario:', error);
+        return [];
+    }
+};
+
 export const obtenerReclamos = async (phone: string): Promise<any[]> => {
     try {
         const usuario = await UsuarioModel.findOne({ phone });
         if (usuario && usuario.reclamos) {
-            const reclamos = await Promise.all(usuario.reclamos.map(async (reclamo) => ReclamoModel.findOne({ id: reclamo })));
+            const reclamos = await Promise.all(usuario.reclamos.map(async (reclamo) => {
+                return await ReclamoModel.findById(reclamo._id);
+            }));
             // Filtrar cualquier resultado nulo o indefinido
             return reclamos.filter((reclamo) => reclamo !== null);   
         }
@@ -125,4 +175,3 @@ export const obtenerReclamos = async (phone: string): Promise<any[]> => {
 function each(arg0: boolean) {
     throw new Error('Function not implemented.');
 }
-

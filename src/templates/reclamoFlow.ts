@@ -53,11 +53,40 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
     )
     .addAnswer('Correo electrónico:', { capture: true },
         async (ctx, ctxFn) => {
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(ctx.body)) {
-                return ctxFn.fallBack('El correo electrónico ingresado no es válido. Por favor, ingresalo nuevamente.')
+                return ctxFn.fallBack('El correo electrónico ingresado no es válido. Por favor, ingresalo nuevamente.');
             }
-            await ctxFn.state.update({ email: ctx.body })
+            await ctxFn.state.update({ email: ctx.body });
+        }
+    )
+    .addAnswer('Por favor, confirme su correo electrónico:', { capture: true },
+        async (ctx, ctxFn) => {
+            const email = ctxFn.state.get("email");
+            return ctxFn.flowDynamic([
+                {
+                    body: `El correo ingresado fue: ${email}. ¿Es correcto?`,
+                    buttons: [
+                        { body: 'Sí, es correcto.' },
+                        { body: 'No, quiero cambiarlo.' }
+                    ]
+                }
+            ]);
+        }
+    )
+    .addAnswer(
+        null, // Respuesta dinámica
+        { capture: true },
+        async (ctx, ctxFn) => {
+            if (ctx.body === 'No, quiero cambiarlo.') {
+                // Reinicia el flujo para volver a pedir el correo
+                return ctxFn.flowDynamic('Por favor, ingresa tu correo electrónico nuevamente:')
+                    .then(() => ctxFn.gotoFlow(reclamoFlow)); // Redirige al flujo inicial
+            }
+            if (ctx.body === 'Sí, es correcto.') {
+                // Continúa con el siguiente paso del flujo
+                return ctxFn.flowDynamic('Gracias, tu correo ha sido confirmado.');
+            }
         }
     )
     .addAnswer('Dirección del solicitante, ingrese el nombre de la calle:', { capture: true },
