@@ -1,0 +1,23 @@
+### Create or Update a User
+POST http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "phone": "1234567890",
+    "name": "John",
+    "lastname": "Doe",
+    "email": "john.doe@example.com",
+    "address": "123 Main St",
+    "direcNum": "456",
+    "piso": "7",
+    "dpto": "A"
+}
+
+### Get a User by Phone
+GET http://localhost:3000/api/usuarios/1234567890
+
+### Get User's History
+GET http://localhost:3000/api/usuarios/1234567890/historial
+
+### Clear User's History
+DELETE http://localhost:3000/api/usuarios/1234567890/historial 
