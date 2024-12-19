@@ -1,6 +1,17 @@
 import ReclamoModel from '~/model/Reclamo';
 import UsuarioModel, { Usuario, UsuarioInput } from '../model/Usuario';
 
+//Funcion para obtener todos los usuarios
+export const obtenerUsuarios = async (req: any, res: any) => {
+    try {
+        const usuarios = await UsuarioModel.find();
+        res.status(200).json(usuarios);
+    } catch (error) {
+        console.error('Error al obtener usuarios:', error);
+        res.status(500).json({ message: 'Error al obtener usuarios' });
+    }
+};
+
 // Función para crear o actualizar un usuario
 export const crearOActualizarUsuario = async (usuarioData: UsuarioInput): Promise<Usuario | null> => {
     try {

@@ -8,11 +8,24 @@ import * as puppeteer from "puppeteer";
 import { completarFormularioOnline } from "./services/autoReclamo";
 import fs from 'fs';
 import path from 'path';
+import express from 'express';
+import { obtenerUsuarios } from "./controller/usuarioController";
 
 const PORT = Number(config.port);
 
 const main = async () => {
     await conectarDB();
+
+    const app = express();
+    app.disable('x-powered-by');
+
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`)});
+
+    app.get('/', (req, res) => {
+        res.send('Hello World!');
+    });
+    app.get('/usuarios', obtenerUsuarios);
 
     const logsDir = path.join(process.cwd(), 'logs');
     if (!fs.existsSync(logsDir)) {
