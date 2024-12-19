@@ -25,10 +25,14 @@ export const faqFlow = addKeyword(EVENTS.ACTION)
                     content: ctx.body,
                     date: new Date()
                 });
-
+              
                 const userHistory = await obtenerConversacion(ctx.from);
-                logger.info('Historial:', userHistory);
                 let response = await AI.chat(prompt, userHistory);
+                const history2 = await agregarConversacion(ctx.from, {
+                    role: 'assistant',
+                    content: response,
+                    date: new Date()
+                });
                 
                 
                if(response.includes('RECLAMO IDENTIFICADO')){

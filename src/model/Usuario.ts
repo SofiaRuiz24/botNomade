@@ -1,19 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
-
+import { Reclamo } from './Reclamo';
 // Interfaz para el historial de conversaciones
 interface Conversation {
     role: string;
     content: string;
     date: Date;
-}
-
-// Interfaz para los reclamos
-interface Reclamo {
-    _id: string;
-    tipo: string;
-    descripcion: string;
-    fecha: Date;
-    estado: string;
 }
 
 // Interfaz principal del Usuario
@@ -23,15 +14,6 @@ export interface Usuario extends Document {
     phone: string;
     history: Conversation[];
     reclamos: Reclamo[];
-}
-
-// Agregar esta interfaz
-export interface UsuarioInput {
-    name: string;
-    phone: string;
-    mail: string;
-    history: any[];
-    reclamos: any[];
 }
 
 // Schema de MongoDB para Usuario

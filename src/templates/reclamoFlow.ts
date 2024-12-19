@@ -158,7 +158,7 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 lastname: ctxFn.state.get("lastname"),
                 docType: ctxFn.state.get("docType"),
                 docNumber: ctxFn.state.get("docNumber"),
-                phone: ctxFn.state.get("phone"),
+                phone: ctx.from,
                 email: ctxFn.state.get("email"),
                 address: ctxFn.state.get("address"),
                 direcNum: ctxFn.state.get("direcNum"),

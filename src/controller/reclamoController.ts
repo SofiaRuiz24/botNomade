@@ -1,6 +1,8 @@
 import ReclamoModel, { Reclamo } from "~/model/Reclamo";
 import fs from 'fs/promises';
 import logger from '../logs/logger';
+import UsuarioModel from '../model/Usuario';
+import { actualizarReclamo } from "./usuarioController";
 
 export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<Reclamo | null> => {
     try {
@@ -21,6 +23,9 @@ export const crearReclamo = async (data: Reclamo, imagePath?: string): Promise<R
 
         const resultado = await nuevoReclamo.save();
         logger.info("Reclamo creado con éxito:", resultado);
+        logger.info('Telefono: ',data.phone);
+        //midleware agregar reclamo a usuario
+        await actualizarReclamo(data.phone, resultado);
 
         // Si se guardó la imagen en el sistema de archivos, podemos borrarla
         if (imagePath) {

@@ -5,14 +5,20 @@ export const conectarDB = async () => {
     try {
         await mongoose.connect('mongodb://localhost:27017/test');
         logger.info("Conectado a MongoDB");
-        
-        // Verificar conexión
+
+        // Verificar existencia de colecciones
         const collections = await mongoose.connection.db.listCollections().toArray();
-        logger.info("Colecciones disponibles:", collections.map(c => c.name));
+        const collectionNames = collections.map(col => col.name);
         
+        if (!collectionNames.includes('usuarios')) {
+            logger.warn("La colección 'usuarios' no existe");
+        }
+        if (!collectionNames.includes('reclamos')) {
+            logger.warn("La colección 'reclamos' no existe");
+        }
+
     } catch (error) {
         console.error("Error de conexión a MongoDB:", error);
         logger.error("Error de conexión a MongoDB:", error);
-        process.exit(1); // Detener la aplicación si no hay conexión
     }
 };

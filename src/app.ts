@@ -19,8 +19,8 @@ const main = async () => {
     const app = express();
     app.disable('x-powered-by');
 
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`)});
+    app.listen(3009, () => {
+        console.log(`Server running on port ${3009}`)});
 
     app.get('/', (req, res) => {
         res.send('Hello World!');

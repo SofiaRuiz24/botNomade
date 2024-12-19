@@ -1,5 +1,5 @@
 import ReclamoModel from '~/model/Reclamo';
-import UsuarioModel, { Usuario, UsuarioInput } from '../model/Usuario';
+import UsuarioModel, { Usuario } from '../model/Usuario';
 
 //Funcion para obtener todos los usuarios
 export const obtenerUsuarios = async (req: any, res: any) => {
@@ -13,12 +13,12 @@ export const obtenerUsuarios = async (req: any, res: any) => {
 };
 
 // Función para crear o actualizar un usuario
-export const crearOActualizarUsuario = async (usuarioData: UsuarioInput): Promise<Usuario | null> => {
+export const crearOActualizarUsuario = async (usuarioData: Usuario): Promise<Usuario | null> => {
     try {
         const { phone } = usuarioData;
 
         // Buscar si el usuario ya existe
-        const usuarioExistente = await UsuarioModel.findOne({ phone });
+        const usuarioExistente = await UsuarioModel.findOne({ phone: phone });
 
         if (usuarioExistente) {
             // Si existe, actualizar el usuario
@@ -39,7 +39,7 @@ export const crearOActualizarUsuario = async (usuarioData: UsuarioInput): Promis
 // Función para verificar si existe un usuario
 export const existeUsuario = async (phone: string): Promise<boolean> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
+        const usuario = await UsuarioModel.findOne({ phone: phone });
         return !!usuario;
     } catch (error) {
         console.error('Error al verificar usuario:', error);
@@ -50,7 +50,7 @@ export const existeUsuario = async (phone: string): Promise<boolean> => {
 // Función para obtener un usuario por su número de teléfono
 export const obtenerUsuario = async (phone: string): Promise<Usuario | null> => {
     try {
-        return await UsuarioModel.findOne({ phone });
+        return await UsuarioModel.findOne({ phone: phone });
     } catch (error) {
         console.error('Error al obtener usuario: ', error);
         return null;
@@ -60,7 +60,7 @@ export const obtenerUsuario = async (phone: string): Promise<Usuario | null> => 
 // Función para obtener el historial de un usuario
 export const obtenerHistorialUsuario = async (phone: string): Promise<any[]> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
+        const usuario = await UsuarioModel.findOne({ phone: phone });
         if (usuario) {
             return usuario.history;
         }
@@ -81,7 +81,8 @@ export const agregarConversacion = async (
     }
 ): Promise<any[]> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
+        const usuario = await UsuarioModel.findOne({ phone : phone });
+        console.log('Usuario:', usuario);
         if (usuario) {
             usuario.history.push(conversation);
             await usuario.save();
@@ -93,35 +94,35 @@ export const agregarConversacion = async (
         return [];
     }
 };
-
-// Función para agregar reclamo
-export const agregarReclamo = async (
-    phone: string, 
-    reclamo: {
-        _id: string;
-        tipo: string,
-        descripcion: string,
-        fecha: Date,
-        estado: string
-    }
-): Promise<boolean> => {
+//Actualizar Reclamo    
+export const actualizarReclamo = async (phone: string, reclamo: any): Promise<boolean> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
-        if (usuario) {
-            usuario.reclamos.push(reclamo);
-            await usuario.save();
-            return true;
+        const usuario = await UsuarioModel.findOne({ phone: phone });
+        if (!usuario) {
+            console.error('Usuario no encontrado');
+            return false;
         }
-        return false;
+
+        // Verificar si el campo reclamos existe y es un array
+        if (!Array.isArray(usuario.reclamos)) {
+            console.error('El campo reclamos no es un array');
+            return false;
+        }
+
+        usuario.reclamos.push(reclamo);
+        await usuario.save();
+        console.log('Reclamo guardado exitosamente');
+        return true;
     } catch (error) {
-        console.error('Error al agregar reclamo:', error);
+        console.error('Error al actualizar reclamo:', error);
         return false;
     }
-};
+}
+
 //Función para limpiar historial
 export const limpiarHistorial = async (phone: string): Promise<boolean> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
+        const usuario = await UsuarioModel.findOne({ phone: phone });
         if (usuario) {
             usuario.history = [];
             await usuario.save();
@@ -136,7 +137,7 @@ export const limpiarHistorial = async (phone: string): Promise<boolean> => {
 
 export const obtenerConversacion = async (phone: string): Promise<any[]> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
+        const usuario = await UsuarioModel.findOne({ phone: phone });
         if (!usuario || !usuario.history) {
             return [];
         }
@@ -144,7 +145,7 @@ export const obtenerConversacion = async (phone: string): Promise<any[]> => {
         // Get last 3 conversations and reverse order
         const mensajesValidos = usuario.history
             .filter(msg => msg && msg.content && typeof msg.content === 'string')
-            .slice(-3)
+            .slice(-2)
             .reverse();
         // Format conversations for OpenAI
         const conversacionesFormateadas = [];
@@ -169,7 +170,7 @@ export const obtenerConversacion = async (phone: string): Promise<any[]> => {
 
 export const obtenerReclamos = async (phone: string): Promise<any[]> => {
     try {
-        const usuario = await UsuarioModel.findOne({ phone });
+        const usuario = await UsuarioModel.findOne({ phone: phone });
         if (usuario && usuario.reclamos) {
             const reclamos = await Promise.all(usuario.reclamos.map(async (reclamo) => {
                 return await ReclamoModel.findById(reclamo._id);
