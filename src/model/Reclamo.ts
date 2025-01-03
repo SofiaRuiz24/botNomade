@@ -21,7 +21,6 @@ export interface Reclamo {
         data: Buffer,
         contentType: string
     };
-    _id: Object;
 }
 
 const reclamoSchema = new mongoose.Schema({
