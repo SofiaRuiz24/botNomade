@@ -143,7 +143,6 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 dateRec: ctxFn.state.get("dateRec"),
                 estado: 'Pendiente',
                 usuario: ctx.from, // Extrae el usuario o asigna el identificador adecuado
-                _id: null
             };
 
             const resultado = await crearReclamo(reclamoData);  //Guardado en BD
