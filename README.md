@@ -1,44 +1,33 @@
 <p align="center">
-  <a href="https://builderbot.vercel.app/">
-    <picture>
-      <img src="https://builderbot.vercel.app/assets/thumbnail-vector.png" height="80">
-    </picture>
-    <h2 align="center">BuilderBot</h2>
-  </a>
+    <h2 align="center">ChatBot NomadeSoft</h2>
 </p>
 
 
 
 <p align="center">
-  <a aria-label="NPM version" href="https://www.npmjs.com/package/@builderbot/bot">
-    <img alt="" src="https://img.shields.io/npm/v/@builderbot/bot?color=%2300c200&label=%40bot-whatsapp">
-  </a>
-  <a aria-label="Join the community on GitHub" href="https://link.codigoencasa.com/DISCORD">
-    <img alt="" src="https://img.shields.io/discord/915193197645402142?logo=discord">
+  <a aria-label="NomadeSoft" href="https://site.nomadesoft.com.ar/">
+    NomadeSoft Site
   </a>
 </p>
 
 
-## Getting Started
+## Nuestra Historia
 
-With this library, you can build automated conversation flows agnostic to the WhatsApp provider, set up automated responses for frequently asked questions, receive and respond to messages automatically, and track interactions with customers. Additionally, you can easily set up triggers to expand functionalities limitlessly.
+Nómade tiene más de 30 años de experiencia brindando servicios a organizaciones Públicas, implementando modelos de gestión modernos con soluciones tecnológicas y modernizando las Instituciones. Cuenta con un equipo de profesionales especializados en gestión por resultado y en diseño de software, promoviendo cambios beneficiosos para las administraciones gubernamentales.
 
-```
-npm create builderbot@latest
-```
+Valoramos el respeto, el esfuerzo, el trabajo en equipo y la capacitación continua en procesos de modernización, manteniendo un ambiente de trabajo saludable. Con el uso de herramientas digitales les permite estar cerca de los clientes y atender sus necesidades donde sea necesario.
 
 
-## Documentation
+## Producto
 
-Visit [builderbot](https://builderbot.vercel.app/) to view the full documentation.
+Ofrecemos soluciones de software flexibles para instituciones públicas, resolviendo problemas operativos y facilitando una gestión moderna y digital. Promovemos la despapelización para mejorar la eficiencia y transparencia, transformando la administración estatal hacia una operación más ágil y sostenible.
 
+Esta aplicación es un servicio de chatbot para instituciones publicas. Está diseñada para manejar diversas interacciones con los usuarios, incluyendo el registro de usuarios, la gestión de reclamos y la interacción con Google Sheets para el almacenamiento de datos. El chatbot está construido utilizando la librería @builderbot/bot e integra varios servicios como Google Sheets, OpenAI y MongoDB.
 
-## Official Course
+##  Política de privacidad
 
-If you want to discover all the functions and features offered by the library you can take the course.
-[View Course](https://app.codigoencasa.com/courses/builderbot?refCode=LEIFER)
+Nomade S.R.L, con domicilio en Derragueira 7097, es responsable de la recolección, uso y protección de los datos personales que usted proporcione a través de nuestros productos y servicios. Puede contactarnos al correo electrónico [contacto@nomadesoft.com] o al teléfono [+54 9 261 237-1111].
 
-
-## Contact Us
-- [💻 Discord](https://link.codigoencasa.com/DISCORD)
-- [👌 𝕏 (Twitter)](https://twitter.com/leifermendez)
+## Contacto
+- [💻 Instagram](https://www.instagram.com/nomade_soft/)
+- [📧 correo](contacto@nomadesoft.com.ar)
