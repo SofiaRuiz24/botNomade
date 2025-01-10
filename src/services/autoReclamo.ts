@@ -110,7 +110,7 @@ export const completarFormularioOnline = async (Reclamo: string ,localPath: stri
             break
     }
 
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
     const page = await browser.newPage();
 
     try {
