@@ -34,7 +34,7 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
              const resultado = await crearReclamo(reclamoData, localPath);
              await new Promise(resolve => setTimeout(resolve, 10000));
              try {
-                 await completarFormularioOnline(reclamoData.id , ''); 
+                 await completarFormularioOnline(reclamoData.id , localPath); 
              } catch (error) {
                  console.error("Error al completar el formulario:", error);
                  console.log(reclamoData);
