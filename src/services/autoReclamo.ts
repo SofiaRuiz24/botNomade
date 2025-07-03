@@ -83,40 +83,47 @@ export const completarFormularioOnline = async (
 
   console.log(reclamo.type);
 
+  // Obtener la URL base según el tipo de reclamo
+  let baseUrl = "";
   switch (reclamo.type) {
     case "Reclamo: Poda de arboles":
-      url = config.URL_PODA;
+      baseUrl = config.URL_PODA;
       break;
     case "Reclamo: Alumbrado publico":
-      url = config.URL_ALUMBRADO;
+      baseUrl = config.URL_ALUMBRADO;
       break;
     case "Reclamo: Animales Sueltos":
-      url = config.URL_ANIMALES;
+      baseUrl = config.URL_ANIMALES;
       break;
     case "Reclamo: Obras publicas inconclusas":
-      url = config.URL_OBRAS;
+      baseUrl = config.URL_OBRAS;
       break;
     case "Reclamo: Veredas en mal estado":
-      url = config.URL_VEREDAS;
+      baseUrl = config.URL_VEREDAS;
       break;
     case "Reclamo: Ruidos Molestos":
-      url = config.URL_RUIDOS;
+      baseUrl = config.URL_RUIDOS;
       break;
     case "Reclamo: Transporte publico":
-      url = config.URL_TRANSPORTE;
+      baseUrl = config.URL_TRANSPORTE;
       break;
     case "Reclamo: Recoleccion de residuos":
-      url = config.URL_RECOLECCION;
+      baseUrl = config.URL_RECOLECCION;
       break;
     case "Reclamo: Problemas de agua":
-      url = config.URL_AGUA;
+      baseUrl = config.URL_AGUA;
       break;
     case "Reclamo: Fuga de gas":
-      url = config.URL_GAS;
+      baseUrl = config.URL_GAS;
       break;
     case "Reclamo: Rutas deteriorada":
-      url = config.URL_RUTA;
+      baseUrl = config.URL_RUTA;
       break;
+  }
+
+  // Construir la URL completa con IDs específicos
+  if (baseUrl) {
+    url = construirUrlFormulario(reclamo.type, baseUrl);
   }
 
   if (!url) {
@@ -437,4 +444,82 @@ async function enviarFormularioConArchivo(
     logger.info("Intentando enviar formulario sin archivo...");
     await enviarFormularioSinArchivo(formUrl, payload);
   }
+}
+
+// Función para construir URLs dinámicamente con IDs específicos
+function construirUrlFormulario(tipoReclamo: string, baseUrl: string): string {
+  // ClaimId compartido entre todos los tipos de reclamo
+  const CLAIM_ID_COMPARTIDO = "15274";
+  
+  // Aquí puedes definir los IDs específicos para cada tipo de reclamo (sin claimId)
+  const configuracionUrls: Record<string, { incidentId: string; panelId: string }> = {
+    "Reclamo: Alumbrado publico": {
+      incidentId: "67",
+      panelId: "73"
+    },
+    "Reclamo: Poda de arboles": {
+      incidentId: "68",
+      panelId: "74"
+    },
+    "Reclamo: Animales Sueltos": {
+      incidentId: "69",
+      panelId: "75"
+    },
+    "Reclamo: Obras publicas inconclusas": {
+      incidentId: "70",
+      panelId: "76"
+    },
+    "Reclamo: Veredas en mal estado": {
+      incidentId: "71",
+      panelId: "77"
+    },
+    "Reclamo: Ruidos Molestos": {
+      incidentId: "72",
+      panelId: "78"
+    },
+    "Reclamo: Transporte publico": {
+      incidentId: "73",
+      panelId: "79"
+    },
+    "Reclamo: Recoleccion de residuos": {
+      incidentId: "74",
+      panelId: "80"
+    },
+    "Reclamo: Problemas de agua": {
+      incidentId: "75",
+      panelId: "81"
+    },
+    "Reclamo: Fuga de gas": {
+      incidentId: "76",
+      panelId: "82"
+    },
+    "Reclamo: Rutas deteriorada": {
+      incidentId: "77",
+      panelId: "83"
+    }
+  };
+
+  const config = configuracionUrls[tipoReclamo];
+  if (!config) {
+    logger.warn(`No se encontró configuración para el tipo de reclamo: ${tipoReclamo}`);
+    return baseUrl; // Retorna la URL base si no encuentra configuración
+  }
+
+  // Extraer el nombre del tipo de reclamo para la URL
+  const tipoParaUrl = tipoReclamo
+    .replace("Reclamo: ", "")
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/ñ/g, "n")
+    .replace(/[áàäâ]/g, "a")
+    .replace(/[éèëê]/g, "e")
+    .replace(/[íìïî]/g, "i")
+    .replace(/[óòöô]/g, "o")
+    .replace(/[úùüû]/g, "u");
+
+  // Construir la URL completa
+  const urlCompleta = `${baseUrl}/incidents/${config.incidentId}-reclamo-${tipoParaUrl}/panels/${config.panelId}/claims/${CLAIM_ID_COMPARTIDO}`;
+  
+  logger.info(`URL construida para ${tipoReclamo}: ${urlCompleta}`);
+  return urlCompleta;
 }
