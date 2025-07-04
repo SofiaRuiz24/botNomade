@@ -167,18 +167,16 @@ async function enviarFormularioConAxios(
 
       const $ = cheerio.load(getResp.data);
 
-      // Buscar el authenticity_token
-      const authenticityToken = $(
-        'input[name="authenticity_token"]'
-      ).val() as string;
-      if (!authenticityToken) {
-        throw new Error("No se pudo obtener el authenticity_token");
-      }
-
-      // Extraer el action del formulario
+      // Extraer el action del formulario primero
       const formAction = $("form").attr("action");
       if (!formAction) {
         throw new Error("No se pudo obtener el action del formulario");
+      }
+
+      // Buscar el authenticity_token específicamente dentro del formulario
+      const authenticityToken = $('form input[name="authenticity_token"]').val() as string;
+      if (!authenticityToken) {
+        throw new Error("No se pudo obtener el authenticity_token del formulario");
       }
 
       // Construir la URL completa para el POST
