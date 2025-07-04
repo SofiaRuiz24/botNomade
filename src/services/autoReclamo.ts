@@ -203,6 +203,11 @@ async function enviarFormularioConAxios(
       logger.info("✅ Campos mapeados correctamente");
 
       // 3. Manejar archivo adjunto si existe
+      logger.info(`Verificando archivo adjunto. localPath: ${localPath}`);
+      logger.info(`Tipo de localPath: ${typeof localPath}`);
+      logger.info(`Sistema operativo: ${process.platform}`);
+      logger.info(`Directorio de trabajo actual: ${process.cwd()}`);
+      
       if (
         localPath &&
         localPath !== "" &&
@@ -212,6 +217,7 @@ async function enviarFormularioConAxios(
         localPath !== "undefined" &&
         localPath !== "base_ts_meta_memory"
       ) {
+        logger.info(`Enviando formulario con archivo desde: ${localPath}`);
         await enviarFormularioConArchivo(
           actionUrl,
           payload,
@@ -220,6 +226,7 @@ async function enviarFormularioConAxios(
           authenticityToken
         );
       } else {
+        logger.info("Enviando formulario sin archivo");
         await enviarFormularioSinArchivo(actionUrl, payload, formUrl, authenticityToken);
       }
 
@@ -440,12 +447,60 @@ async function enviarFormularioConArchivo(
   authenticityToken: string
 ): Promise<void> {
   try {
-    const filePath = path.resolve(localPath);
+    // Normalizar la ruta para que funcione en Windows y Unix/Linux
+    let filePath = localPath;
+    
+    // Si la ruta no es absoluta, resolverla desde el directorio de trabajo actual
+    if (!path.isAbsolute(localPath)) {
+      filePath = path.resolve(process.cwd(), localPath);
+    } else {
+      filePath = path.resolve(localPath);
+    }
+
+    // Normalizar separadores de ruta para el sistema operativo actual
+    filePath = path.normalize(filePath);
+
+    logger.info(`Intentando acceder al archivo: ${filePath}`);
+    logger.info(`Ruta original: ${localPath}`);
+    logger.info(`Sistema operativo: ${process.platform}`);
 
     if (!fs.existsSync(filePath)) {
       logger.warn(
-        `Archivo no encontrado: ${filePath}. Enviando formulario sin archivo.`
+        `Archivo no encontrado en: ${filePath}. Enviando formulario sin archivo.`
       );
+      
+      // Intentar buscar el archivo en rutas alternativas comunes
+      const alternativePaths = [
+        path.join(process.cwd(), 'assets', 'tmp', path.basename(localPath)),
+        path.join('./assets/tmp/', path.basename(localPath)),
+        path.join(__dirname, '../../assets/tmp/', path.basename(localPath))
+      ];
+
+      let foundPath = null;
+      for (const altPath of alternativePaths) {
+        const normalizedAltPath = path.resolve(altPath);
+        logger.info(`Buscando en ruta alternativa: ${normalizedAltPath}`);
+        if (fs.existsSync(normalizedAltPath)) {
+          foundPath = normalizedAltPath;
+          logger.info(`Archivo encontrado en: ${foundPath}`);
+          break;
+        }
+      }
+
+      if (!foundPath) {
+        logger.error(`No se pudo encontrar el archivo en ninguna ruta. Enviando sin archivo.`);
+        await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
+        return;
+      }
+
+      filePath = foundPath;
+    }
+
+    // Verificar que el archivo es legible
+    try {
+      await fs.promises.access(filePath, fs.constants.R_OK);
+    } catch (accessError) {
+      logger.error(`No se puede leer el archivo: ${filePath}`, accessError);
       await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
       return;
     }
@@ -457,8 +512,15 @@ async function enviarFormularioConArchivo(
       formData.append(key, payload[key]);
     });
 
-    // Agregar el archivo
+    // Agregar el archivo con mejor manejo de errores
+    logger.info(`Creando stream para el archivo: ${filePath}`);
     const fileStream = fs.createReadStream(filePath);
+    
+    // Manejar errores del stream
+    fileStream.on('error', (streamError) => {
+      logger.error(`Error al leer el archivo: ${filePath}`, streamError);
+    });
+
     formData.append("claim[answers_attributes][7][files][]", fileStream);
 
     const postResp = await axios.post(formUrl, formData, {
