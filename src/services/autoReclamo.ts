@@ -13,8 +13,6 @@ export const completarFormularioOnline = async (
   Reclamo: string,
   localPath: string
 ): Promise<void> => {
-  let url = "";
-
   // Desde el id del reclamo buscar en bd y traer el reclamo correspondiente.
   const reclamo = await obtenerReclamo(Reclamo);
   console.log(reclamo);
@@ -121,12 +119,7 @@ export const completarFormularioOnline = async (
       break;
   }
 
-  // Construir la URL completa con IDs específicos
-  if (baseUrl) {
-    url = construirUrlFormulario(reclamo.type, baseUrl);
-  }
-
-  if (!url) {
+  if (!baseUrl) {
     console.error(
       "No se pudo determinar la URL para el tipo de reclamo:",
       reclamo.type
@@ -139,7 +132,7 @@ export const completarFormularioOnline = async (
   }
 
   try {
-    await enviarFormularioConAxios(url, reclamo, localPath);
+    await enviarFormularioConAxios(baseUrl, reclamo, localPath);
   } catch (error) {
     console.error("Error al completar el formulario:", error);
     logger.error("Error al completar el formulario:", error);
@@ -163,7 +156,7 @@ async function enviarFormularioConAxios(
         } de ${maxAttempts} para acceder a la URL: ${formUrl}`
       );
 
-      // 1. Obtener la página HTML para extraer el authenticity_token
+      // 1. Obtener la página HTML para extraer el authenticity_token y el action del formulario
       const getResp = await axios.get(formUrl, {
         timeout: 30000,
         headers: {
@@ -182,7 +175,22 @@ async function enviarFormularioConAxios(
         throw new Error("No se pudo obtener el authenticity_token");
       }
 
+      // Extraer el action del formulario
+      const formAction = $("form").attr("action");
+      if (!formAction) {
+        throw new Error("No se pudo obtener el action del formulario");
+      }
+
+      // Construir la URL completa para el POST
+      let actionUrl = formAction;
+      if (formAction.startsWith("/")) {
+        // Si es una URL relativa, construir la URL completa
+        const baseUrl = new URL(formUrl);
+        actionUrl = `${baseUrl.origin}${formAction}`;
+      }
+
       logger.info("Authenticity token obtenido exitosamente");
+      logger.info("Action URL extraída:", actionUrl);
 
       // 2. Preparar el payload del formulario
       let payload: any = {
@@ -205,9 +213,14 @@ async function enviarFormularioConAxios(
         localPath !== "undefined" &&
         localPath !== "base_ts_meta_memory"
       ) {
-        await enviarFormularioConArchivo(formUrl, payload, localPath);
+        await enviarFormularioConArchivo(
+          actionUrl,
+          payload,
+          localPath,
+          formUrl
+        );
       } else {
-        await enviarFormularioSinArchivo(formUrl, payload);
+        await enviarFormularioSinArchivo(actionUrl, payload, formUrl);
       }
 
       success = true;
@@ -376,12 +389,15 @@ async function mapearCamposFormulario(
 
 async function enviarFormularioSinArchivo(
   formUrl: string,
-  payload: any
+  payload: any,
+  refererUrl: string
 ): Promise<void> {
+  console.log("Enviando formulario a:", formUrl);
+  console.log("Payload:", payload);
   const postResp = await axios.post(formUrl, qs.stringify(payload), {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Referer: formUrl,
+      Referer: refererUrl,
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     },
@@ -399,7 +415,8 @@ async function enviarFormularioSinArchivo(
 async function enviarFormularioConArchivo(
   formUrl: string,
   payload: any,
-  localPath: string
+  localPath: string,
+  refererUrl: string
 ): Promise<void> {
   try {
     const filePath = path.resolve(localPath);
@@ -408,7 +425,7 @@ async function enviarFormularioConArchivo(
       logger.warn(
         `Archivo no encontrado: ${filePath}. Enviando formulario sin archivo.`
       );
-      await enviarFormularioSinArchivo(formUrl, payload);
+      await enviarFormularioSinArchivo(formUrl, payload, refererUrl);
       return;
     }
 
@@ -426,7 +443,7 @@ async function enviarFormularioConArchivo(
     const postResp = await axios.post(formUrl, formData, {
       headers: {
         ...formData.getHeaders(),
-        Referer: formUrl,
+        Referer: refererUrl,
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
@@ -442,84 +459,6 @@ async function enviarFormularioConArchivo(
   } catch (error) {
     logger.error("Error al subir el archivo:", error);
     logger.info("Intentando enviar formulario sin archivo...");
-    await enviarFormularioSinArchivo(formUrl, payload);
+    await enviarFormularioSinArchivo(formUrl, payload, refererUrl);
   }
-}
-
-// Función para construir URLs dinámicamente con IDs específicos
-function construirUrlFormulario(tipoReclamo: string, baseUrl: string): string {
-  // ClaimId compartido entre todos los tipos de reclamo
-  const CLAIM_ID_COMPARTIDO = "15274";
-  
-  // Aquí puedes definir los IDs específicos para cada tipo de reclamo (sin claimId)
-  const configuracionUrls: Record<string, { incidentId: string; panelId: string }> = {
-    "Reclamo: Alumbrado publico": {
-      incidentId: "67",
-      panelId: "73"
-    },
-    "Reclamo: Poda de arboles": {
-      incidentId: "68",
-      panelId: "74"
-    },
-    "Reclamo: Animales Sueltos": {
-      incidentId: "69",
-      panelId: "75"
-    },
-    "Reclamo: Obras publicas inconclusas": {
-      incidentId: "70",
-      panelId: "76"
-    },
-    "Reclamo: Veredas en mal estado": {
-      incidentId: "71",
-      panelId: "77"
-    },
-    "Reclamo: Ruidos Molestos": {
-      incidentId: "72",
-      panelId: "78"
-    },
-    "Reclamo: Transporte publico": {
-      incidentId: "73",
-      panelId: "79"
-    },
-    "Reclamo: Recoleccion de residuos": {
-      incidentId: "74",
-      panelId: "80"
-    },
-    "Reclamo: Problemas de agua": {
-      incidentId: "75",
-      panelId: "81"
-    },
-    "Reclamo: Fuga de gas": {
-      incidentId: "76",
-      panelId: "82"
-    },
-    "Reclamo: Rutas deteriorada": {
-      incidentId: "77",
-      panelId: "83"
-    }
-  };
-
-  const config = configuracionUrls[tipoReclamo];
-  if (!config) {
-    logger.warn(`No se encontró configuración para el tipo de reclamo: ${tipoReclamo}`);
-    return baseUrl; // Retorna la URL base si no encuentra configuración
-  }
-
-  // Extraer el nombre del tipo de reclamo para la URL
-  const tipoParaUrl = tipoReclamo
-    .replace("Reclamo: ", "")
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/ñ/g, "n")
-    .replace(/[áàäâ]/g, "a")
-    .replace(/[éèëê]/g, "e")
-    .replace(/[íìïî]/g, "i")
-    .replace(/[óòöô]/g, "o")
-    .replace(/[úùüû]/g, "u");
-
-  // Construir la URL completa
-  const urlCompleta = `${baseUrl}/incidents/${config.incidentId}-reclamo-${tipoParaUrl}/panels/${config.panelId}/claims/${CLAIM_ID_COMPARTIDO}`;
-  
-  logger.info(`URL construida para ${tipoReclamo}: ${urlCompleta}`);
-  return urlCompleta;
 }
