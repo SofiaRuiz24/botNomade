@@ -360,27 +360,45 @@ async function mapearCamposFormulario(
     payload["claim[answers_attributes][0][neighbor_attributes][phone]"] =
       reclamo.phone;
 
-    // Buscar indices de preguntas para dirección, descripción y fecha
-    const addressIndex = 1;
-    const numberIndex = 2;
-    const descriptionIndex = 3;
-    const dateIndex = 4;
+    // Buscar question_ids para cada campo
+    payload["claim[answers_attributes][0][question_id]"] = "243";
 
-    payload[`claim[answers_attributes][${addressIndex}][input_string]`] =
-      reclamo.address;
-    payload[`claim[answers_attributes][${numberIndex}][input_string]`] =
-      reclamo.direcNum;
-    payload[`claim[answers_attributes][${descriptionIndex}][input_text]`] =
-      reclamo.descriptionRec;
-    payload[`claim[answers_attributes][${dateIndex}][input_date]`] =
-      reclamo.dateRec;
+    // Calle (índice 1)
+    payload["claim[answers_attributes][1][input_string]"] = reclamo.address;
+    payload["claim[answers_attributes][1][question_id]"] = "244";
 
+    // Número (índice 2)
+    payload["claim[answers_attributes][2][input_string]"] = reclamo.direcNum;
+    payload["claim[answers_attributes][2][question_id]"] = "245";
+
+    // Piso/Dto (índice 3) - opcional
     if (reclamo.piso) {
-      payload[`claim[answers_attributes][3][input_string]`] = reclamo.piso;
+      payload["claim[answers_attributes][3][input_string]"] = reclamo.piso;
     }
+    payload["claim[answers_attributes][3][question_id]"] = "246";
+
+    // Localidad (índice 4) - opcional, usar dpto del reclamo
     if (reclamo.dpto) {
-      payload[`claim[answers_attributes][4][input_string]`] = reclamo.dpto;
+      payload["claim[answers_attributes][4][input_string]"] = reclamo.dpto;
     }
+    payload["claim[answers_attributes][4][question_id]"] = "247";
+
+    // Referencias (índice 5) - opcional
+    if (reclamo.referencias) {
+      payload["claim[answers_attributes][5][input_string]"] = reclamo.referencias;
+    }
+    payload["claim[answers_attributes][5][question_id]"] = "248";
+
+    // Descripción del reclamo (índice 6)
+    payload["claim[answers_attributes][6][input_text]"] = reclamo.descriptionRec;
+    payload["claim[answers_attributes][6][question_id]"] = "249";
+
+    // Archivos (índice 7) - se maneja en enviarFormularioConArchivo
+    payload["claim[answers_attributes][7][question_id]"] = "250";
+
+    // Fecha (índice 8)
+    payload["claim[answers_attributes][8][input_date]"] = reclamo.dateRec;
+    payload["claim[answers_attributes][8][question_id]"] = "251";
   }
 
   logger.info("Campos mapeados en el payload:", Object.keys(payload));
@@ -441,7 +459,7 @@ async function enviarFormularioConArchivo(
 
     // Agregar el archivo
     const fileStream = fs.createReadStream(filePath);
-    formData.append("claim[answers_attributes][1][files]", fileStream);
+    formData.append("claim[answers_attributes][7][files][]", fileStream);
 
     const postResp = await axios.post(formUrl, formData, {
       headers: {
