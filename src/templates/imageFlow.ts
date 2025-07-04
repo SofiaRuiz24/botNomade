@@ -3,6 +3,7 @@ import { crearReclamo } from "~/controller/reclamoController";
 import { completarFormularioOnline } from "~/services/autoReclamo";
 import { Reclamo } from "~/model/Reclamo";
 import { v4 as uuidv4 } from 'uuid';
+import logger from "~/logs/logger";
 
 const imageFlow = addKeyword(EVENTS.MEDIA)
     .addAnswer('Perfecto, ingrese la imagen', { capture: true }, async (ctx, ctxFn) => {
@@ -26,7 +27,7 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
         };
 
         const localPath = await ctxFn.provider.saveFile(ctx, { path: `./assets/tmp/` });
-        
+        logger.info(`Imagen guardada en: ${localPath}`);
         try {
             ctxFn.flowDynamic('Por favor aguarde un momento. Estamos procesando su solicitud...');
             
