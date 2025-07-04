@@ -203,7 +203,7 @@ async function enviarFormularioConAxios(
       logger.info("✅ Campos mapeados correctamente");
 
       // 3. Manejar archivo adjunto si existe
-      logger.info(`Verificando archivo adjunto. localPath: ${localPath}`);
+      logger.info(`Verificando archivo adjunto. localPath:`, localPath);
       logger.info(`Tipo de localPath: ${typeof localPath}`);
       logger.info(`Sistema operativo: ${process.platform}`);
       logger.info(`Directorio de trabajo actual: ${process.cwd()}`);

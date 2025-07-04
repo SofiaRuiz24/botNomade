@@ -18,8 +18,9 @@ export interface Reclamo {
     estado: string;
     usuario: string;
     imagen?: {
-        data: Buffer,
-        contentType: string
+        data?: Buffer,
+        contentType?: string
+        path?: string // Agregado para almacenar la ruta del archivo
     };
 }
 

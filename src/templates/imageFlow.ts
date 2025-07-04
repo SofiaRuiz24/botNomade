@@ -7,6 +7,9 @@ import logger from "~/logs/logger";
 
 const imageFlow = addKeyword(EVENTS.MEDIA)
     .addAnswer('Perfecto, ingrese la imagen', { capture: true }, async (ctx, ctxFn) => {
+        const localPath = await ctxFn.provider.saveFile(ctx, { path: `./assets/tmp/` });
+        logger.info(`Imagen guardada en: ${localPath}`);
+        
         const reclamoData: Reclamo = {
             id: uuidv4(),
             type: ctxFn.state.get("type"),
@@ -23,11 +26,13 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
             descriptionRec: ctxFn.state.get("descriptionRec"),
             dateRec: ctxFn.state.get("dateRec"),
             estado: 'Pendiente',
-            usuario: ctx.from
+            usuario: ctx.from,
+            imagen: {
+                path: localPath
+            }
         };
 
-        const localPath = await ctxFn.provider.saveFile(ctx, { path: `./assets/tmp/` });
-        logger.info(`Imagen guardada en: ${localPath}`);
+        
         try {
             ctxFn.flowDynamic('Por favor aguarde un momento. Estamos procesando su solicitud...');
             
