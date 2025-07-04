@@ -9,6 +9,25 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
     .addAnswer('Perfecto, ingrese la imagen', { capture: true }, async (ctx, ctxFn) => {
         const localPath = await ctxFn.provider.saveFile(ctx, { path: `./assets/tmp/` });
         logger.info(`Imagen guardada en: ${localPath}`);
+        logger.info(`Verificando si el archivo existe inmediatamente después de guardarlo...`);
+        logger.info(`Tipo de localPath: ${typeof localPath}`);
+        logger.info(`Archivo existe: ${require('fs').existsSync(localPath)}`);
+        
+        // Verificar directorio de trabajo y contenido del directorio tmp
+        logger.info(`Directorio de trabajo actual: ${process.cwd()}`);
+        
+        try {
+            const tmpDir = require('path').join(process.cwd(), 'assets', 'tmp');
+            logger.info(`Contenido del directorio ${tmpDir}:`);
+            if (require('fs').existsSync(tmpDir)) {
+                const files = require('fs').readdirSync(tmpDir);
+                logger.info(`Archivos encontrados:`, files);
+            } else {
+                logger.warn(`El directorio ${tmpDir} no existe`);
+            }
+        } catch (dirError) {
+            logger.error(`Error al verificar directorio:`, dirError);
+        }
         
         const reclamoData: Reclamo = {
             id: uuidv4(),
@@ -32,6 +51,9 @@ const imageFlow = addKeyword(EVENTS.MEDIA)
             }
         };
 
+        // Log para verificar el formato de fecha recibido desde WhatsApp
+        logger.info(`📅 Fecha recibida desde WhatsApp: "${ctxFn.state.get("dateRec")}"`);
+        logger.info(`📅 Formato de fecha en reclamoData: "${reclamoData.dateRec}"`);
         
         try {
             ctxFn.flowDynamic('Por favor aguarde un momento. Estamos procesando su solicitud...');

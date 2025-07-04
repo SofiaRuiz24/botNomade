@@ -4,10 +4,15 @@ import qs from "qs";
 import { Reclamo } from "~/model/Reclamo";
 import { config } from "~/config";
 import path from "path";
+import { fileURLToPath } from "url";
 import { obtenerReclamo } from "~/controller/reclamoController";
 import logger from "../logs/logger";
 import fs from "fs";
 import FormData from "form-data";
+
+// Para ES modules, necesitamos definir __dirname manualmente
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const completarFormularioOnline = async (
   Reclamo: string,
@@ -352,6 +357,27 @@ async function mapearCamposFormulario(
   );
 
   if (answerFields.length > 0) {
+    logger.info("🔍 Extrayendo question_ids dinámicamente del HTML...");
+
+    // Extraer question_ids dinámicamente del HTML
+    const questionIds: { [key: number]: string } = {};
+    
+    // Buscar todos los inputs hidden con question_id
+    $('input[name*="question_id"][type="hidden"]').each((i, elem) => {
+      const nameAttr = $(elem).attr("name");
+      const value = $(elem).val() as string;
+      
+      if (nameAttr && value) {
+        // Extraer el índice del nombre: claim[answers_attributes][X][question_id]
+        const match = nameAttr.match(/claim\[answers_attributes\]\[(\d+)\]\[question_id\]/);
+        if (match) {
+          const index = parseInt(match[1]);
+          questionIds[index] = value;
+          logger.info(`📋 question_id[${index}] = ${value}`);
+        }
+      }
+    });
+
     // Si encontramos campos con answers_attributes, usar esa estructura
     payload["claim[answers_attributes][0][neighbor_attributes][name]"] =
       reclamo.name;
@@ -367,45 +393,77 @@ async function mapearCamposFormulario(
     payload["claim[answers_attributes][0][neighbor_attributes][phone]"] =
       reclamo.phone;
 
-    // Buscar question_ids para cada campo
-    payload["claim[answers_attributes][0][question_id]"] = "243";
+    // Usar question_ids extraídos dinámicamente
+    if (questionIds[0]) {
+      payload["claim[answers_attributes][0][question_id]"] = questionIds[0];
+      logger.info(`✅ Asignado question_id[0]: ${questionIds[0]}`);
+    }
 
     // Calle (índice 1)
     payload["claim[answers_attributes][1][input_string]"] = reclamo.address;
-    payload["claim[answers_attributes][1][question_id]"] = "244";
+    if (questionIds[1]) {
+      payload["claim[answers_attributes][1][question_id]"] = questionIds[1];
+      logger.info(`✅ Asignado question_id[1]: ${questionIds[1]}`);
+    }
 
     // Número (índice 2)
     payload["claim[answers_attributes][2][input_string]"] = reclamo.direcNum;
-    payload["claim[answers_attributes][2][question_id]"] = "245";
+    if (questionIds[2]) {
+      payload["claim[answers_attributes][2][question_id]"] = questionIds[2];
+      logger.info(`✅ Asignado question_id[2]: ${questionIds[2]}`);
+    }
 
     // Piso/Dto (índice 3) - opcional
     if (reclamo.piso) {
       payload["claim[answers_attributes][3][input_string]"] = reclamo.piso;
     }
-    payload["claim[answers_attributes][3][question_id]"] = "246";
+    if (questionIds[3]) {
+      payload["claim[answers_attributes][3][question_id]"] = questionIds[3];
+      logger.info(`✅ Asignado question_id[3]: ${questionIds[3]}`);
+    }
 
     // Localidad (índice 4) - opcional, usar dpto del reclamo
     if (reclamo.dpto) {
       payload["claim[answers_attributes][4][input_string]"] = reclamo.dpto;
     }
-    payload["claim[answers_attributes][4][question_id]"] = "247";
+    if (questionIds[4]) {
+      payload["claim[answers_attributes][4][question_id]"] = questionIds[4];
+      logger.info(`✅ Asignado question_id[4]: ${questionIds[4]}`);
+    }
 
     // Referencias (índice 5) - opcional
     if (reclamo.referencias) {
       payload["claim[answers_attributes][5][input_string]"] = reclamo.referencias;
     }
-    payload["claim[answers_attributes][5][question_id]"] = "248";
+    if (questionIds[5]) {
+      payload["claim[answers_attributes][5][question_id]"] = questionIds[5];
+      logger.info(`✅ Asignado question_id[5]: ${questionIds[5]}`);
+    }
 
     // Descripción del reclamo (índice 6)
     payload["claim[answers_attributes][6][input_text]"] = reclamo.descriptionRec;
-    payload["claim[answers_attributes][6][question_id]"] = "249";
+    if (questionIds[6]) {
+      payload["claim[answers_attributes][6][question_id]"] = questionIds[6];
+      logger.info(`✅ Asignado question_id[6]: ${questionIds[6]}`);
+    }
 
     // Archivos (índice 7) - se maneja en enviarFormularioConArchivo
-    payload["claim[answers_attributes][7][question_id]"] = "250";
+    if (questionIds[7]) {
+      payload["claim[answers_attributes][7][question_id]"] = questionIds[7];
+      logger.info(`✅ Asignado question_id[7]: ${questionIds[7]}`);
+    }
 
-    // Fecha (índice 8)
+    // Fecha (índice 8) - mantener formato original con barras /
+    logger.info(`📅 Fecha original recibida: "${reclamo.dateRec}"`);
     payload["claim[answers_attributes][8][input_date]"] = reclamo.dateRec;
-    payload["claim[answers_attributes][8][question_id]"] = "251";
+    if (questionIds[8]) {
+      payload["claim[answers_attributes][8][question_id]"] = questionIds[8];
+      logger.info(`✅ Asignado question_id[8]: ${questionIds[8]}`);
+    }
+    logger.info(`📅 Fecha enviada al formulario: "${payload["claim[answers_attributes][8][input_date]"]}"`);
+
+    // Log resumen de question_ids encontrados
+    logger.info(`📊 Resumen de question_ids extraídos:`, questionIds);
   }
 
   logger.info("Campos mapeados en el payload:", Object.keys(payload));
@@ -447,63 +505,86 @@ async function enviarFormularioConArchivo(
   authenticityToken: string
 ): Promise<void> {
   try {
-    // Normalizar la ruta para que funcione en Windows y Unix/Linux
-    let filePath = localPath;
-    
-    // Si la ruta no es absoluta, resolverla desde el directorio de trabajo actual
-    if (!path.isAbsolute(localPath)) {
-      filePath = path.resolve(process.cwd(), localPath);
-    } else {
-      filePath = path.resolve(localPath);
-    }
+    logger.info(`🔍 Iniciando envío con archivo. Ruta recibida: ${localPath}`);
 
-    // Normalizar separadores de ruta para el sistema operativo actual
-    filePath = path.normalize(filePath);
+    // Función auxiliar para buscar el archivo
+    const buscarArchivo = (rutaOriginal: string): string | null => {
+      const fileName = path.basename(rutaOriginal);
+      logger.info(`📁 Buscando archivo: ${fileName}`);
 
-    logger.info(`Intentando acceder al archivo: ${filePath}`);
-    logger.info(`Ruta original: ${localPath}`);
-    logger.info(`Sistema operativo: ${process.platform}`);
+      const rutasAProbar = [
+        // Ruta original tal como viene
+        rutaOriginal,
+        // Ruta absoluta si es relativa
+        path.isAbsolute(rutaOriginal) ? rutaOriginal : path.resolve(process.cwd(), rutaOriginal),
+        // En assets/tmp desde el directorio actual
+        path.join(process.cwd(), 'assets', 'tmp', fileName),
+        // Relativo a assets/tmp
+        path.join('./assets/tmp/', fileName),
+        // Desde el directorio del script
+        path.join(__dirname, '../../assets/tmp/', fileName),
+        // Sin la barra inicial si la tiene
+        rutaOriginal.startsWith('/') ? path.resolve(process.cwd(), rutaOriginal.substring(1)) : null
+      ].filter(Boolean); // Filtrar valores null
 
-    if (!fs.existsSync(filePath)) {
-      logger.warn(
-        `Archivo no encontrado en: ${filePath}. Enviando formulario sin archivo.`
-      );
-      
-      // Intentar buscar el archivo en rutas alternativas comunes
-      const alternativePaths = [
-        path.join(process.cwd(), 'assets', 'tmp', path.basename(localPath)),
-        path.join('./assets/tmp/', path.basename(localPath)),
-        path.join(__dirname, '../../assets/tmp/', path.basename(localPath))
-      ];
+      logger.info(`🔍 Rutas a probar (${rutasAProbar.length}):`);
+      rutasAProbar.forEach((ruta, index) => {
+        logger.info(`  ${index + 1}. ${ruta}`);
+      });
 
-      let foundPath = null;
-      for (const altPath of alternativePaths) {
-        const normalizedAltPath = path.resolve(altPath);
-        logger.info(`Buscando en ruta alternativa: ${normalizedAltPath}`);
-        if (fs.existsSync(normalizedAltPath)) {
-          foundPath = normalizedAltPath;
-          logger.info(`Archivo encontrado en: ${foundPath}`);
-          break;
+      for (const ruta of rutasAProbar) {
+        try {
+          const rutaNormalizada = path.resolve(ruta);
+          logger.info(`🔎 Verificando: ${rutaNormalizada}`);
+          
+          if (fs.existsSync(rutaNormalizada)) {
+            // Verificar también que se pueda leer
+            fs.accessSync(rutaNormalizada, fs.constants.R_OK);
+            logger.info(`✅ Archivo encontrado y legible: ${rutaNormalizada}`);
+            return rutaNormalizada;
+          } else {
+            logger.info(`❌ No encontrado: ${rutaNormalizada}`);
+          }
+        } catch (error) {
+          logger.warn(`⚠️ Error al verificar ${ruta}:`, error.message);
         }
       }
 
-      if (!foundPath) {
-        logger.error(`No se pudo encontrar el archivo en ninguna ruta. Enviando sin archivo.`);
-        await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
-        return;
+      return null;
+    };
+
+    // Buscar el archivo
+    const archivoEncontrado = buscarArchivo(localPath);
+
+    if (!archivoEncontrado) {
+      // Intentar listar el contenido del directorio para debug
+      logger.warn(`❌ Archivo no encontrado. Listando directorios para debug...`);
+      
+      const directoriosAListar = [
+        path.join(process.cwd(), 'assets', 'tmp'),
+        path.join(process.cwd(), 'assets'),
+        path.dirname(localPath)
+      ];
+
+      for (const dir of directoriosAListar) {
+        try {
+          if (fs.existsSync(dir)) {
+            const archivos = fs.readdirSync(dir);
+            logger.info(`📂 Contenido de ${dir}:`, archivos);
+          } else {
+            logger.warn(`📂 Directorio no existe: ${dir}`);
+          }
+        } catch (error) {
+          logger.error(`❌ Error al listar ${dir}:`, error.message);
+        }
       }
 
-      filePath = foundPath;
-    }
-
-    // Verificar que el archivo es legible
-    try {
-      await fs.promises.access(filePath, fs.constants.R_OK);
-    } catch (accessError) {
-      logger.error(`No se puede leer el archivo: ${filePath}`, accessError);
+      logger.warn(`🚫 No se pudo encontrar el archivo. Enviando formulario sin archivo.`);
       await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
       return;
     }
+
+    logger.info(`📤 Preparando envío con archivo: ${archivoEncontrado}`);
 
     const formData = new FormData();
 
@@ -512,16 +593,18 @@ async function enviarFormularioConArchivo(
       formData.append(key, payload[key]);
     });
 
-    // Agregar el archivo con mejor manejo de errores
-    logger.info(`Creando stream para el archivo: ${filePath}`);
-    const fileStream = fs.createReadStream(filePath);
+    // Crear stream del archivo
+    const fileStream = fs.createReadStream(archivoEncontrado);
     
     // Manejar errores del stream
     fileStream.on('error', (streamError) => {
-      logger.error(`Error al leer el archivo: ${filePath}`, streamError);
+      logger.error(`❌ Error al crear stream del archivo:`, streamError);
     });
 
+    // Agregar el archivo al formulario
     formData.append("claim[answers_attributes][7][files][]", fileStream);
+
+    logger.info(`🚀 Enviando formulario con archivo...`);
 
     const postResp = await axios.post(formUrl, formData, {
       headers: {
@@ -537,12 +620,12 @@ async function enviarFormularioConArchivo(
     });
 
     logger.info(
-      "Formulario enviado con archivo. Código de estado:",
+      "✅ Formulario enviado con archivo. Código de estado:",
       postResp.status
     );
   } catch (error) {
-    logger.error("Error al subir el archivo:", error);
-    logger.info("Intentando enviar formulario sin archivo...");
+    logger.error("❌ Error al subir el archivo:", error);
+    logger.info("🔄 Intentando enviar formulario sin archivo...");
     await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
   }
 }

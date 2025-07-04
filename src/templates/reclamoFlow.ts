@@ -98,10 +98,11 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
                 return ctxFn.fallBack('La fecha ingresada no es válida. Use el formato dd/mm/aaaa, separado por puntos o espacios.')
             }
 
-            // Elimina cualquier separador (espacios, puntos, guiones, barras) dejando solo números
-            const fechaLimpia = ctx.body.replace(/[\s./-]/g, '');
+            // Normalizar la fecha al formato dd/mm/aaaa (conservar barras)
+            const fechaNormalizada = ctx.body.replace(/[\s.-]/g, '/').replace(/\/+/g, '/');
             
-            // Convertir la fecha ingresada a formato Date
+            // Para validación, eliminar separadores y convertir a Date
+            const fechaLimpia = ctx.body.replace(/[\s./-]/g, '');
             const dia = parseInt(fechaLimpia.substring(0, 2));
             const mes = parseInt(fechaLimpia.substring(2, 4)) - 1; // Los meses en JS van de 0-11
             const anio = parseInt(fechaLimpia.substring(4, 8));
@@ -114,7 +115,9 @@ const reclamoFlow = addKeyword(EVENTS.ACTION)
             if (fechaIngresada > fechaActual) {
                 return ctxFn.fallBack('La fecha no puede ser posterior al día de hoy. Ingrese la fecha nuevamente.')
             }
-            await ctxFn.state.update({ dateRec: fechaLimpia })
+            
+            // Guardar la fecha normalizada con barras (formato dd/mm/aaaa)
+            await ctxFn.state.update({ dateRec: fechaNormalizada })
         }
     )
     .addAnswer('¿Desea agregar una imagen o archivo relacionado con el reclamo?', { capture: true, buttons: [{ body: 'Sí, quiero.' }, { body: 'No, por ahora.' }] },
