@@ -162,6 +162,7 @@ async function enviarFormularioConAxios(
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            
         },
       });
 
@@ -215,10 +216,11 @@ async function enviarFormularioConAxios(
           actionUrl,
           payload,
           localPath,
-          formUrl
+          formUrl,
+          authenticityToken
         );
       } else {
-        await enviarFormularioSinArchivo(actionUrl, payload, formUrl);
+        await enviarFormularioSinArchivo(actionUrl, payload, formUrl, authenticityToken);
       }
 
       success = true;
@@ -388,7 +390,8 @@ async function mapearCamposFormulario(
 async function enviarFormularioSinArchivo(
   formUrl: string,
   payload: any,
-  refererUrl: string
+  refererUrl: string,
+  authenticityToken: string
 ): Promise<void> {
   console.log("Enviando formulario a:", formUrl);
   console.log("Payload:", payload);
@@ -396,6 +399,7 @@ async function enviarFormularioSinArchivo(
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Referer: refererUrl,
+      "X-CSRF-Token": authenticityToken,
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     },
@@ -414,7 +418,8 @@ async function enviarFormularioConArchivo(
   formUrl: string,
   payload: any,
   localPath: string,
-  refererUrl: string
+  refererUrl: string,
+  authenticityToken: string
 ): Promise<void> {
   try {
     const filePath = path.resolve(localPath);
@@ -423,7 +428,7 @@ async function enviarFormularioConArchivo(
       logger.warn(
         `Archivo no encontrado: ${filePath}. Enviando formulario sin archivo.`
       );
-      await enviarFormularioSinArchivo(formUrl, payload, refererUrl);
+      await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
       return;
     }
 
@@ -442,6 +447,7 @@ async function enviarFormularioConArchivo(
       headers: {
         ...formData.getHeaders(),
         Referer: refererUrl,
+        "X-CSRF-Token": authenticityToken,
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
@@ -457,6 +463,6 @@ async function enviarFormularioConArchivo(
   } catch (error) {
     logger.error("Error al subir el archivo:", error);
     logger.info("Intentando enviar formulario sin archivo...");
-    await enviarFormularioSinArchivo(formUrl, payload, refererUrl);
+    await enviarFormularioSinArchivo(formUrl, payload, refererUrl, authenticityToken);
   }
 }
